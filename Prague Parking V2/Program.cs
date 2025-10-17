@@ -3,11 +3,11 @@ using Spectre.Console;
 
 namespace PragueParkingV2;
 
-internal class Program
+internal class Program //Kommentarer kommer att vara på svenska och kod på engelska
 {
     static void Main(string[] args)
     {
-        AnsiConsole.MarkupLine("[bold blue]Welcome to Prague Parking V2![/]");
+        AnsiConsole.MarkupLine("[bold blue]Welcome to Prague Parking V2![/]"); // Välkomstmeddelande med formatering
         AnsiConsole.MarkupLine("[slowblink]This application helps you park vehicles in Prague.[/]");
         Style first = new(
 
@@ -17,7 +17,7 @@ internal class Program
 
 
 
-        Menu.Run();
+        Menu.Run(); //Anropar menyn som hanterar användarinteraktion
     }
 }
 
