@@ -24,7 +24,7 @@ namespace Prague_Parking_V2
                 if (space.CanVehicleFit(vehicle))
                 {
                     space.ParkVehicle(vehicle);
-                    spaceIndex = space.CapacityIndex;
+                    spaceIndex = space.Index;
                     return true;
                 }
             }
@@ -32,21 +32,35 @@ namespace Prague_Parking_V2
             return false; // No available space found 
         }
 
-        public bool CheckoutVehicle(string fixedRegNumber, out int spaceIndex) // Ta bort ett fordon från garaget
+        public bool TryRemoveVehicle(string fixedRegNumber, out Vehicle? removedVehicle) // Försök att ta bort ett fordon från garaget
         {
             var regNumber = Vehicle.FixReg(fixedRegNumber);
-            
             foreach (var space in ParkingSpaces)
             {
-                var vehicle = space.Vehicles.FirstOrDefault(v => v.RegNumber == regNumber);
+                var vehicle = space.Vehicles.FirstOrDefault(v => v.LicensePlate == regNumber);
                 if (vehicle != null && space.RemoveVehicle(regNumber))
                 {
-                    vehicle = vehicle;
-                    spaceIndex = space.CapacityIndex;
+                    removedVehicle = vehicle;
                     return true;
                 }
             }
-            vehicle = null;
+            removedVehicle = null;
+            return false; // Fordonet hittades inte
+        }
+
+        public bool CheckoutVehicle(string fixedRegNumber, out int spaceIndex) // Ta bort ett fordon från garaget
+        {
+            var regNumber = Vehicle.FixReg(fixedRegNumber);
+
+            foreach (var space in ParkingSpaces)
+            {
+                var vehicle = space.Vehicles.FirstOrDefault(v => v.LicensePlate == regNumber); // Hitta fordonet i parkeringsplatsen genom att matcha registreringsnumret med fordonets LicensePlate-egenskap
+                if (vehicle != null && space.RemoveVehicle(regNumber))
+                {
+                    spaceIndex = space.Index;
+                    return true;
+                }
+            }
             spaceIndex = -1;
             return false; // Fordonet hittades inte
         }
@@ -57,15 +71,40 @@ namespace Prague_Parking_V2
 
             foreach (var space in ParkingSpaces)
             {
-                var vehicle = space.Vehicles.FirstOrDefault(vehicle => vehicle.RegNumber == regNumber);
+                var vehicle = space.Vehicles.FirstOrDefault(vehicle => vehicle.LicensePlate == regNumber);
                 if (vehicle != null)
                 {
-                    spaceIndex = space.CapacityIndex;
+                    spaceIndex = space.Index;
                     return vehicle;
                 }
             }
             spaceIndex = -1;
             return null; // Vehicle not found
+        }
+
+        public sealed class ParkingStats
+        {
+            public int TotalSpaces { get; }
+            public int OccupiedSpaces { get; }
+            public int FreeSpaces { get; }
+            public int TotalVehiclesParked { get; }
+
+            public ParkingStats(int totalSpaces, int occupiedSpaces, int totalVehiclesParked, int vehicles)
+            {
+                TotalSpaces = totalSpaces;
+                OccupiedSpaces = occupiedSpaces;
+                TotalVehiclesParked = totalVehiclesParked;
+                FreeSpaces = vehicles;
+            }
+        }
+
+        public ParkingStats GetParkingStats() // Hämta statistik om garaget
+        {
+            int totalSpaces = ParkingSpaces.Count;
+            int occupiedSpaces = ParkingSpaces.Count(space => space.Vehicles.Count > 0);
+            int totalVehiclesParked = ParkingSpaces.Sum(space => space.Vehicles.Count);
+            int freeSpaces = totalSpaces - occupiedSpaces;
+            return new ParkingStats(totalSpaces, occupiedSpaces, totalVehiclesParked, freeSpaces);
         }
     }
 }

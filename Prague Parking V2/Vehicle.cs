@@ -5,14 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace Prague_Parking_V2
 {
     public abstract class Vehicle
     {
-        private static readonly Regex RegLetters = new(@"^[A-Z0-9]{1,3}-[A-Z0-9]{1,2} [0-9]{1,4}$", RegexOptions.Compiled); //Kolla denna line
+        private static readonly Regex RegLetters = new("^[A-Z0-9]{3,10}$", RegexOptions.Compiled); //Kolla denna line
 
-        private string LicensePlate { get; }
+        public string LicensePlate { get; }
         public string Color { get; }
         public DateTime TimeParked { get; } = DateTime.Now;
 
@@ -42,7 +43,7 @@ namespace Prague_Parking_V2
 
         public static bool RegIsValid(string regNumber) // Kontrollera om registreringsnumret är giltigt
         {
-            return RegLetters.IsMatch(regNumber); // Kontrollera om registreringsnumret matchar mönstret
+            return !string.IsNullOrEmpty(regNumber) && RegLetters.IsMatch(regNumber);
         }
 
 

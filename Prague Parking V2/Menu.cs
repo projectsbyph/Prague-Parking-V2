@@ -13,6 +13,7 @@ namespace Prague_Parking_V2
     {
         //TODO: lägg in denna: private static readonly _garage = new (spotCount: 20, spotCapacity: 4); ) /
 
+        private static readonly ParkingGarage _garage = new(20, 4); // Skapar en instans av ParkingGarage med 20 platser och kapacitet på 4 fordon per plats
         public static void Run()
         {
             var optionsMenu = new List<string> // Menyval i en lista för enkel hantering
@@ -38,39 +39,33 @@ namespace Prague_Parking_V2
                 {
                     case "Park a vehicle":
                         {
-                            var typeVehicle = AnsiConsole.Prompt(
-                                new SelectionPrompt<string>()
-                                .Title("Select vehicle type to park: ")
-                                .AddChoices(new[] { "Car", "Motorcycle", "Bus", "Bike", "Exit" })); // Val av fordonstyp att parkera 
-
-                            if (typeVehicle == "Exit")
-                            {
-                                break;
-                            }
+                            AnsiConsole.MarkupLine("[green]Parking a vehicle...[/]");
+                            TryParkVehicle(); // Metod för att parkera ett fordon
                         }
                         break;
                     case "Remove a vehicle":
                         {
                             AnsiConsole.MarkupLine("[green]Removing a vehicle...[/]");
-                            // Metod för att ta bort ett fordon
+                            RemoveVehicle();
                         }
                         break;
                     case "List parked vehicles":
                         {
                             AnsiConsole.MarkupLine("[green]Listing parked vehicles...[/]");
-                            // Metod för att lista parkerade fordon
+
+                            ListVehicles();
                         }
                         break;
                     case "Find a vehicle":
                         {
                             AnsiConsole.MarkupLine("[green]Finding a vehicle...[/]");
-                            // Metod för att hitta ett fordon
+                            FindVehicle();
                         }
                         break;
                     case "View parking statistics":
                         {
                             AnsiConsole.MarkupLine("[green]Viewing parking statistics...[/]");
-                            // Metod för att visa parkeringsstatistik
+                            ViewStatistics();
                         }
                         break;
                     case "Exit":
@@ -84,7 +79,7 @@ namespace Prague_Parking_V2
             }
         }
 
-        private static void ParkVehicle() // Metod för att parkera ett fordon
+        public static void TryParkVehicle() // Metod för att parkera ett fordon
         {
             var type = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -99,23 +94,23 @@ namespace Prague_Parking_V2
                 {
                     if (string.IsNullOrWhiteSpace(stringReg))
                         return ValidationResult.Error("[red]Registration number can not be left empty[/]");
-                    var normal = Vehicle.RegIsValid(stringReg);
-                    bool isValid = Vehicle.FixReg(normal);
+                    var normal = Vehicle.FixReg(stringReg); // Normalisera registreringsnumret
+                    bool isValid = Vehicle.RegIsValid(normal); // Kontrollera om det normaliserade registreringsnumret är giltigt
 
                     return isValid
                         ? ValidationResult.Success()
-                        : ValidationResult.Error("[red]Input a valid format");
+                        : ValidationResult.Error("[red]Input a valid format[/]");
                 }));
 
-            var color = AnsiConsole.Prompt(new TextPrompt<string>("Color:").DefaultValue("Black")); // default svart sätts för att undvika null för fordon utan färg
+            var color = AnsiConsole.Prompt(new TextPrompt<string>("Color:")); // Fråga användaren om fordonets färg
 
             Vehicle vehicle;
             try // Skapar fordon baserat på användarens val
             {
                 vehicle = type == "Car" ? new Car(regNumber, color) // Om användaren valde "Car", skapa en Car-instans
-                    : new Motorcycle(regNumber, color); // Annars skapa en Motorcycle-instans
+                    : new Mc(regNumber, color); // Annars skapa en Motorcycle-instans
             }
-            catch (ArgumentException exceptions) // Fångar eventuella undantag vid skapandet av fordonet
+            catch (Exception exception) // Fångar eventuella undantag vid skapandet av fordonet
             {
                 AnsiConsole.MarkupLine($"[red]{exception.Message}[/]"); // Visar felmeddelande i rött
                 return;
@@ -133,7 +128,7 @@ namespace Prague_Parking_V2
             // Fortsätt med nästa metod nedan
         }
 
-        private static void RemoveVehicle() // Metod för att ta bort ett fordon
+        public static void RemoveVehicle() // Metod för att ta bort ett fordon
         {
             var regNumber = AnsiConsole.Prompt(
                 new TextPrompt<string>("Enter the registration number of the vehicle to remove:")
@@ -141,14 +136,14 @@ namespace Prague_Parking_V2
                 {
                     if (string.IsNullOrWhiteSpace(stringReg))
                         return ValidationResult.Error("[red]Registration number can not be left empty[/]");
-                    var normal = Vehicle.IsValidReg(stringReg);
-                    return Vehicle.NomalizeReg(stringReg)
+                    var normal = Vehicle.FixReg(stringReg);
+                    return Vehicle.RegIsValid(normal)
                             ? ValidationResult.Success()
-                                : ValidationResult.Error("[red]Input a valid format");
+                                : ValidationResult.Error("[red]Input a valid format[/]");
                 }));
             if (_garage.TryRemoveVehicle(regNumber, out Vehicle removedVehicle)) // Anropar garage objektets metod för att ta bort fordonet
             {
-                AnsiConsole.MarkupLine($"[green]Vehicle with registration number {removedVehicle.RegistrationNumber} removed successfully.[/]");
+                AnsiConsole.MarkupLine($"[green]Vehicle with registration number {removedVehicle.LicensePlate} removed successfully.[/]");
             }
             else
             {
@@ -157,42 +152,53 @@ namespace Prague_Parking_V2
             Pause();
         }
 
-        private static void ListVehicles() // Metod för att lista parkerade fordon
+        public static void ListVehicles() // Metod för att lista parkerade fordon
         {
-            var parkedVehicles = _garage.GetParkedVehicles(); // Hämtar listan över parkerade fordon från garage objektet
-            if (parkedVehicles.Count == 0)
+            var rows = new List<(int Spot, Vehicle vehicle)>(); // Lista för att lagra parkerade fordon och deras platsnummer
+            foreach (var space in _garage.ParkingSpaces) // Loopar igenom alla parkeringsplatser i garaget
             {
-                AnsiConsole.MarkupLine("[yellow]No vehicles are currently parked.[/]");
+                foreach (var vehicle in space.Vehicles) // Loopar igenom alla fordon på varje parkeringsplats
+                {
+                    rows.Add((space.Index, vehicle)); // Lägger till fordonet och dess platsnummer i listan
+                }
             }
-            else
+
+            if (rows.Count == 0) // Om inga fordon är parkerade
             {
-                var table = new Table(); // Skapar en tabell för att visa fordonen
+                AnsiConsole.MarkupLine("[yellow]No vehicles are parked yet.[/]");
+                Pause();
+                return;
+            }
+
+            {
+                var table = new Table().Border(TableBorder.Rounded); // Skapar en tabell för att visa fordonen
                 table.AddColumn("Spot Number");
                 table.AddColumn("Registration Number");
                 table.AddColumn("Color");
                 table.AddColumn("Type");
-                foreach (var (spotNumber, vehicle) in parkedVehicles)
-                {
-                    table.AddRow($"#{stringReg.Index}", spotNumber.ToString(), vehicle.RegistrationNumber, vehicle.Color, vehicle.GetType().Name, vehicle.ParkedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
-                }
-                AnsiConsole.Write(table); // Skriver ut tabellen i konsolen
-            }
+                table.AddColumn("Parked At");
 
-            if (table.Rows.Count == 0) // Om inga fordon är parkerade
-            {
-                AnsiConsole.MarkupLine("[yellow] No vehicles are parked yet.[/]");
+                foreach (var (spot, vehicle) in rows) // Loopar igenom listan med parkerade fordon
+                {
+                    table.AddRow(
+                        spot.ToString(),
+                        vehicle.LicensePlate,
+                        vehicle.Color,
+                        vehicle.GetType().Name,
+                        vehicle.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm")); // Lägger till en rad i tabellen för varje fordon
+                }
+
+                {
+                    AnsiConsole.Write(table);
+                }
+                Pause();
             }
-            else
-            {
-                AnsiConsole.Write(table);
-            }
-            Pause();
         }
 
-        private static void FindVehiclee()
+        public static void FindVehicle()
         {
             var regNumber = AnsiConsole.Prompt(new TextPrompt<string>("Search for reg number: "));
-            var foundVehicles = _garage.FindVehicles(regNumber, out int spotNumber); // Anropar garage objektets metod för att hitta fordonet
+            var foundVehicles = _garage.FindVehicle(regNumber, out int spotNumber); // Anropar garage objektets metod för att hitta fordonet
             if (foundVehicles is null)
             {
                 AnsiConsole.MarkupLine("[red]No vehicle found with the provided registration number.[/]");
@@ -201,18 +207,18 @@ namespace Prague_Parking_V2
             {
                 AnsiConsole.MarkupLine($"[green]Vehicle found in spot {spotNumber}:[/]");
                 var vehicle = foundVehicles;
-                AnsiConsole.MarkupLine($"Registration Number: {vehicle.RegistrationNumber}, Color: {vehicle.Color}, Type: {vehicle.GetType().Name}, Parked At: {vehicle.ParkedAt.ToLocalTime():yyyy-MM-dd HH:mm}");
+                AnsiConsole.MarkupLine($"Registration Number: {vehicle.LicensePlate}, Color: {vehicle.Color}, Type: {vehicle.GetType().Name}, Parked At: {vehicle.TimeParked.ToLocalTime():yyyy-MM-dd HH:mm}");
             }
             Pause();
         }
 
-        private static void ViewStatistics() // Metod för att visa parkeringsstatistik
+        public static void ViewStatistics() // Metod för att visa parkeringsstatistik
         {
-            var stats = _garage.GetStatistics(); // Hämtar statistik från garage objektet
+            var stats = _garage.GetParkingStats(); // Hämtar statistik från garage objektet
             AnsiConsole.MarkupLine("[bold underline]Parking Statistics:[/]");
-            AnsiConsole.MarkupLine($"Total Spots: {stats.TotalSpots}");
-            AnsiConsole.MarkupLine($"Occupied Spots: {stats.OccupiedSpots}");
-            AnsiConsole.MarkupLine($"Available Spots: {stats.AvailableSpots}");
+            AnsiConsole.MarkupLine($"Total Spots: {stats.TotalSpaces}");
+            AnsiConsole.MarkupLine($"Occupied Spots: {stats.OccupiedSpaces}");
+            AnsiConsole.MarkupLine($"Available Spots: {stats.FreeSpaces}");
             AnsiConsole.MarkupLine($"Total Vehicles Parked: {stats.TotalVehiclesParked}");
             Pause();
         }
@@ -230,9 +236,9 @@ namespace Prague_Parking_V2
                 decimal ratePerHour = vehicle switch
                 {
                     Car => 20m,
-                    Motorcycle => 10m,
-                    Bus => 50m,
-                    Bike => 5m,
+                    Mc => 10m,
+                    //Bus => 50m,
+                    //Bike => 5m,
                     _ => throw new ArgumentException("Unknown vehicle type")
                 };
                 decimal totalFee = ratePerHour * (decimal)Math.Ceiling(duration.TotalHours);
