@@ -22,11 +22,12 @@ namespace Prague_Parking_V2
 
         protected Vehicle(string licensePlate, string color)
         {
-            if (!RegLetters.IsMatch(licensePlate))
+            var normalizedReg = FixReg(licensePlate);
+            if (!RegIsValid(normalizedReg))
             {
                 throw new ArgumentException("Invalid license plate format.");
             }
-            LicensePlate = licensePlate;
+            LicensePlate = normalizedReg;
             Color = color;
         }
 
@@ -36,9 +37,9 @@ namespace Prague_Parking_V2
         }
 
         //Hjälpare för UI att visa fordonets info
-        public static string FixReg(string input) // Rensa och formatera registreringsnumret
+        public static string FixReg(string regNumber) // Rensa och formatera registreringsnumret
 
-            => input.Trim().Replace(" ", "").Replace("-", "").ToUpperInvariant(); // Ta bort mellanslag och bindestreck, gör om till versaler
+            => regNumber.Trim().Replace(" ", "").Replace("-", "").ToUpperInvariant(); // Ta bort mellanslag och bindestreck, gör om till versaler
 
 
         public static bool RegIsValid(string regNumber) // Kontrollera om registreringsnumret är giltigt

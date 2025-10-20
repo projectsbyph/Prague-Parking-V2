@@ -9,8 +9,12 @@ namespace Prague_Parking_V2
     public class ParkingGarage
     {
         public List<ParkingSpace> ParkingSpaces { get; } = new(); // Lista över parkeringsplatser
+
         public ParkingGarage(int numberOfSpaces, int capacityPerSpace)  // Konstruktor för parkeringsgaraget
         {
+            ParkingSpaces = Enumerable.Range(1, numberOfSpaces)
+                .Select(i => new ParkingSpace(i, capacityPerSpace))
+                .ToList();
             for (int i = 0; i < numberOfSpaces; i++)
             {
                 ParkingSpaces.Add(new ParkingSpace(i, capacityPerSpace));

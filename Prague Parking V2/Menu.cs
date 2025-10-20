@@ -11,9 +11,7 @@ namespace Prague_Parking_V2
     public static class Menu // Meny klass för att hantera användarinteraktion och val i konsolen (UI)
                              //Kommentarer kommer att vara på svenska och kod på engelska
     {
-        //TODO: lägg in denna: private static readonly _garage = new (spotCount: 20, spotCapacity: 4); ) /
-
-        private static readonly ParkingGarage _garage = new(20, 4); // Skapar en instans av ParkingGarage med 20 platser och kapacitet på 4 fordon per plats
+        private static readonly ParkingGarage _garage = new(100, 4); // Skapar en instans av ParkingGarage med 20 platser och kapacitet på 4 fordon per plats
         public static void Run()
         {
             var optionsMenu = new List<string> // Menyval i en lista för enkel hantering
@@ -92,10 +90,9 @@ namespace Prague_Parking_V2
                 new TextPrompt<string>("Registration number:")
                 .Validate(stringReg =>
                 {
-                    if (string.IsNullOrWhiteSpace(stringReg))
-                        return ValidationResult.Error("[red]Registration number can not be left empty[/]");
-                    var normal = Vehicle.FixReg(stringReg); // Normalisera registreringsnumret
-                    bool isValid = Vehicle.RegIsValid(normal); // Kontrollera om det normaliserade registreringsnumret är giltigt
+                    
+                    var normalizedReg = Vehicle.FixReg(stringReg); // Normalisera registreringsnumret
+                    bool isValid = Vehicle.RegIsValid(normalizedReg); // Kontrollera om det normaliserade registreringsnumret är giltigt
 
                     return isValid
                         ? ValidationResult.Success()
@@ -183,9 +180,9 @@ namespace Prague_Parking_V2
                     table.AddRow(
                         spot.ToString(),
                         vehicle.LicensePlate,
-                        vehicle.Color,
+                        vehicle.Color ?? "-",
                         vehicle.GetType().Name,
-                        vehicle.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm")); // Lägger till en rad i tabellen för varje fordon
+                        vehicle.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
                 }
 
                 {
