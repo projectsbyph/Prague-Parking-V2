@@ -17,10 +17,6 @@ namespace Prague_Parking_V2
             ParkingSpaces = Enumerable.Range(1, spaceCount)
                 .Select(i => new ParkingSpace(i, spaceCapacityUnits))
                 .ToList();
-            for (int i = 0; i < spaceCount; i++)
-            {
-                ParkingSpaces.Add(new ParkingSpace(i, spaceCapacityUnits));
-            }
         }
 
         // PARKERA FORDON
