@@ -11,16 +11,19 @@ namespace Prague_Parking_V2
 {
     public abstract class Vehicle
     {
+        //FÄLT
         private static readonly Regex RegLetters = new("^[A-Z0-9]{3,10}$", RegexOptions.Compiled); //Kolla denna line
 
+        //EGENSKAPER
         public string LicensePlate { get; }
-        public string Color { get; }
         public DateTime TimeParked { get; } = DateTime.Now;
 
         public abstract int Size { get; }
         public abstract string Type { get; }
 
-        protected Vehicle(string licensePlate, string color)
+
+        //KONSTRUKTOR
+        protected Vehicle(string licensePlate)
         {
             var normalizedReg = FixReg(licensePlate);
             if (!RegIsValid(normalizedReg))
@@ -28,15 +31,14 @@ namespace Prague_Parking_V2
                 throw new ArgumentException("Invalid license plate format.");
             }
             LicensePlate = normalizedReg;
-            Color = color;
         }
 
         public override string ToString()
         {
-            return $"{Type} - License Plate: {LicensePlate}, Color: {Color}, Parked At: {TimeParked}";
+            return $"{Type} - License Plate: {LicensePlate}, Parked At: {TimeParked}";
         }
 
-        //Hjälpare för UI att visa fordonets info
+        //METODER (Hjälpare för UI att visa fordonets info)
         public static string FixReg(string regNumber) // Rensa och formatera registreringsnumret
 
             => regNumber.Trim().Replace(" ", "").Replace("-", "").ToUpperInvariant(); // Ta bort mellanslag och bindestreck, gör om till versaler

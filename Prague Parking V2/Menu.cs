@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using Spectre.Console.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -11,7 +12,10 @@ namespace Prague_Parking_V2
     public static class Menu // Meny klass för att hantera användarinteraktion och val i konsolen (UI)
                              //Kommentarer kommer att vara på svenska och kod på engelska
     {
-        private static readonly ParkingGarage _garage = new(100, 4); // Skapar en instans av ParkingGarage med 20 platser och kapacitet på 4 fordon per plats
+        // FÄLT
+        private static readonly ParkingGarage _garage = new(spaceCount: 100, spaceCapacityUnits: 4); // Skapar en instans av ParkingGarage med 20 platser och kapacitet på 4 fordon per plats
+
+        // METOD - HUVUDMENY
         public static void Run()
         {
             var optionsMenu = new List<string> // Menyval i en lista för enkel hantering
@@ -20,7 +24,7 @@ namespace Prague_Parking_V2
             "Remove a vehicle",
             "List parked vehicles",
             "Find a vehicle",
-            "View parking statistics",
+            "Move vehicle to another spot", // Framtida funktionalitet
             "Exit"
         };
 
@@ -38,32 +42,32 @@ namespace Prague_Parking_V2
                     case "Park a vehicle":
                         {
                             AnsiConsole.MarkupLine("[green]Parking a vehicle...[/]");
-                            TryParkVehicle(); // Metod för att parkera ett fordon
+                            ParkVehicleUI(); // Metod för att parkera ett fordon
                         }
                         break;
                     case "Remove a vehicle":
                         {
                             AnsiConsole.MarkupLine("[green]Removing a vehicle...[/]");
-                            RemoveVehicle();
+                            RemoveVehicleUI();
                         }
                         break;
                     case "List parked vehicles":
                         {
                             AnsiConsole.MarkupLine("[green]Listing parked vehicles...[/]");
 
-                            ListVehicles();
+                            ListVehiclesUI();
                         }
                         break;
                     case "Find a vehicle":
                         {
                             AnsiConsole.MarkupLine("[green]Finding a vehicle...[/]");
-                            FindVehicle();
+                            FindVehicleUI();
                         }
                         break;
-                    case "View parking statistics":
+                        case "Move vehicle to another spot": // Framtida funktionalitet
                         {
-                            AnsiConsole.MarkupLine("[green]Viewing parking statistics...[/]");
-                            ViewStatistics();
+                            AnsiConsole.MarkupLine("[yellow]Feature coming soon![/]");
+                            Pause();
                         }
                         break;
                     case "Exit":
@@ -77,7 +81,8 @@ namespace Prague_Parking_V2
             }
         }
 
-        public static void TryParkVehicle() // Metod för att parkera ett fordon
+        // METOD UI FÖR ATT PARKERA FORDON
+        public static void ParkVehicleUI() // Metod för att parkera ett fordon
         {
             var type = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -99,13 +104,11 @@ namespace Prague_Parking_V2
                         : ValidationResult.Error("[red]Input a valid format[/]");
                 }));
 
-            var color = AnsiConsole.Prompt(new TextPrompt<string>("Color:")); // Fråga användaren om fordonets färg
-
             Vehicle vehicle;
             try // Skapar fordon baserat på användarens val
             {
-                vehicle = type == "Car" ? new Car(regNumber, color) // Om användaren valde "Car", skapa en Car-instans
-                    : new Mc(regNumber, color); // Annars skapa en Motorcycle-instans
+                vehicle = type == "Car" ? new Car(regNumber) // Om användaren valde "Car", skapa en Car-instans
+                    : new Mc(regNumber); // Annars skapa en Motorcycle-instans
             }
             catch (Exception exception) // Fångar eventuella undantag vid skapandet av fordonet
             {
@@ -125,7 +128,8 @@ namespace Prague_Parking_V2
             // Fortsätt med nästa metod nedan
         }
 
-        public static void RemoveVehicle() // Metod för att ta bort ett fordon
+        // METOD UI FÖR ATT TA BORT FORDON
+        public static void RemoveVehicleUI() // Metod för att ta bort ett fordon
         {
             var regNumber = AnsiConsole.Prompt(
                 new TextPrompt<string>("Enter the registration number of the vehicle to remove:")
@@ -149,50 +153,56 @@ namespace Prague_Parking_V2
             Pause();
         }
 
-        public static void ListVehicles() // Metod för att lista parkerade fordon
+        // METOD UI FÖR ATT LISTA PARKERADE FORDON
+        public static void ListVehiclesUI() // Metod för att lista parkerade fordon
         {
-            var rows = new List<(int Spot, Vehicle vehicle)>(); // Lista för att lagra parkerade fordon och deras platsnummer
+            AnsiConsole.Write(new FigletText("GARAGE").Centered().Color(Color.Blue)); // Visar en figlet text "GARAGE" centrerad och i grön färg))
+
+            //var rows = new List<(int Spot, Vehicle vehicle)>(); // Lista för att lagra parkerade fordon och deras platsnummer
             foreach (var space in _garage.ParkingSpaces) // Loopar igenom alla parkeringsplatser i garaget
             {
-                foreach (var vehicle in space.Vehicles) // Loopar igenom alla fordon på varje parkeringsplats
+                // Lägger till varje parkerat fordon i listan med dess platsnummer och separerar dem
+                var usedSpaceUnits = space.Vehicles.Sum(v => v.Size); // Beräknar det använda utrymmet i parkeringsplatsen
+                var header = $"[yellow]Parking Spot {space.Index}[/] - Used: {usedSpaceUnits}/{space.CapacitySpaces} units"; // Skapar en rubrik för parkeringsplatsen med dess index och använda kapacitet
+                var rule = new Rule(header) { Justification = Justify.Left }; // Skapar en regel med rubriken
+                AnsiConsole.Write(rule); // Visar regeln i konsolen
+
+                // Visuell representation av kapaciteten med gröna och grå block nedan
+                var unitsBar = string.Concat(Enumerable.Range(1, space.CapacitySpaces).Select(i => i <= usedSpaceUnits ? "[green]█[/]" : "[grey]█[/]")); // Skapar en visuell representation av kapaciteten med gröna och grå block
+                AnsiConsole.MarkupLine(unitsBar); // Visar kapacitetsbaren i konsolen
+
+                if(space.Vehicles.Count == 0) // Om inga fordon är parkerade på platsen
                 {
-                    rows.Add((space.Index, vehicle)); // Lägger till fordonet och dess platsnummer i listan
+                    AnsiConsole.MarkupLine("[grey]-- No vehicles parked in this spot --[/]");
+                    continue; // Hoppar till nästa iteration av loopen
                 }
-            }
 
-            if (rows.Count == 0) // Om inga fordon är parkerade
-            {
-                AnsiConsole.MarkupLine("[yellow]No vehicles are parked yet.[/]");
-                Pause();
-                return;
-            }
-
-            {
+                // Visar tabellen med parkerade fordon
                 var table = new Table().Border(TableBorder.Rounded); // Skapar en tabell för att visa fordonen
-                table.AddColumn("Spot Number");
-                table.AddColumn("Registration Number");
-                table.AddColumn("Color");
+                table.AddColumn("Space units used");
+                table.AddColumn("Registration number");
                 table.AddColumn("Type");
-                table.AddColumn("Parked At");
+                table.AddColumn("Parked at");
 
-                foreach (var (spot, vehicle) in rows) // Loopar igenom listan med parkerade fordon
+                // Lägger till rader i tabellen för varje parkerat fordon
+                foreach (var v in space.Vehicles)
                 {
                     table.AddRow(
-                        spot.ToString(),
-                        vehicle.LicensePlate,
-                        vehicle.Color ?? "-",
-                        vehicle.GetType().Name,
-                        vehicle.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
+                        v.Size.ToString(), // Använda utrymmes enheter
+                        v.LicensePlate, // Registreringsnummer
+                        v.GetType().Name, // Fordonstyp
+                        v.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm")); // Tidpunkt när fordonet parkerades
                 }
-
-                {
-                    AnsiConsole.Write(table);
-                }
-                Pause();
+                AnsiConsole.Write(table); // Visar tabellen i konsolen
             }
+            AnsiConsole.Write(new Rule()); // Visar en avslutande regel i konsolen
+
+            Pause();
+
         }
 
-        public static void FindVehicle()
+        // METOD UI FÖR ATT HITTA FORDON
+        public static void FindVehicleUI()
         {
             var regNumber = AnsiConsole.Prompt(new TextPrompt<string>("Search for reg number: "));
             var foundVehicles = _garage.FindVehicle(regNumber, out int spotNumber); // Anropar garage objektets metod för att hitta fordonet
@@ -204,28 +214,19 @@ namespace Prague_Parking_V2
             {
                 AnsiConsole.MarkupLine($"[green]Vehicle found in spot {spotNumber}:[/]");
                 var vehicle = foundVehicles;
-                AnsiConsole.MarkupLine($"Registration Number: {vehicle.LicensePlate}, Color: {vehicle.Color}, Type: {vehicle.GetType().Name}, Parked At: {vehicle.TimeParked.ToLocalTime():yyyy-MM-dd HH:mm}");
+                AnsiConsole.MarkupLine($"Registration Number: {vehicle.LicensePlate}, Type: {vehicle.GetType().Name}, Parked At: {vehicle.TimeParked.ToLocalTime():yyyy-MM-dd HH:mm}");
             }
             Pause();
         }
 
-        public static void ViewStatistics() // Metod för att visa parkeringsstatistik
-        {
-            var stats = _garage.GetParkingStats(); // Hämtar statistik från garage objektet
-            AnsiConsole.MarkupLine("[bold underline]Parking Statistics:[/]");
-            AnsiConsole.MarkupLine($"Total Spots: {stats.TotalSpaces}");
-            AnsiConsole.MarkupLine($"Occupied Spots: {stats.OccupiedSpaces}");
-            AnsiConsole.MarkupLine($"Available Spots: {stats.FreeSpaces}");
-            AnsiConsole.MarkupLine($"Total Vehicles Parked: {stats.TotalVehiclesParked}");
-            Pause();
-        }
-
+        // HJÄLPMETOD FÖR ATT PAUSA PROGRAMMET
         private static void Pause() // Metod för att pausa programmet och vänta på användarens input
         {
             AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
             Console.ReadKey(true);
         }
 
+        // KLASS FÖR ATT BERÄKNA PARKERINGSAVGIFT (Framtida funktionalitet)
         private static class PricingToPark // Fixa parkeringsavgift
         {
             public static decimal CalculateParkingFee(Vehicle vehicle, TimeSpan duration) // Metod för att beräkna parkeringsavgift baserat på fordonstyp och parkeringstid
@@ -242,6 +243,9 @@ namespace Prague_Parking_V2
                 return totalFee;
             }
         }
+
+       
+        
     }
 }
 

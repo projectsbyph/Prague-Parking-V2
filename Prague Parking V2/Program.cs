@@ -7,7 +7,7 @@ internal class Program //Kommentarer kommer att vara på svenska och kod på eng
 {
     static void Main(string[] args)
     {
-        AnsiConsole.MarkupLine("[bold blue]Welcome to Prague Parking V2![/]"); // Välkomstmeddelande med formatering
+        AnsiConsole.Write(new FigletText("PRAGUE PARKING V2").Centered().Color(Color.Blue));
         AnsiConsole.MarkupLine("[slowblink]This application helps you park vehicles in Prague.[/]");
         Style first = new(
 

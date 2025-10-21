@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Prague_Parking_V2
 {
-    public class Car : Vehicle
+    //KONKRET KLASS SOM ÄRVER FRÅN Vehicle
+    public class Car : Vehicle // Bil klassen ärver från Vehicle
     {
-        // Car class implementation
-        public override int Size => 1;
+        public override int Size => 4;
         public override string Type => "Car";
 
-        public Car(string licensePlate, string color) : base(licensePlate, color) // Konstruktor som anropar basklassens konstruktor
+        public Car(string licensePlate) : base(licensePlate) // Konstruktor som anropar basklassens konstruktor
         {
         }
     }
