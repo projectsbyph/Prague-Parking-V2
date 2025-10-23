@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -98,5 +100,6 @@ namespace Prague_Parking_V2
             spaceIndex = -1;
             return null; // Vehicle not found
         }
+   
     }
 }

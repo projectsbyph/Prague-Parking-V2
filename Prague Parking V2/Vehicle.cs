@@ -11,12 +11,9 @@ namespace Prague_Parking_V2
 {
     public abstract class Vehicle
     {
-        //FÄLT
-        private static readonly Regex RegLetters = new("^[A-Z0-9]{3,10}$", RegexOptions.Compiled); //Kolla denna line
-
         //EGENSKAPER
         public string LicensePlate { get; }
-        public DateTime TimeParked { get; } = DateTime.Now;
+        public DateTime TimeParked { get; set; } = DateTime.Now;
 
         public abstract int Size { get; }
         public abstract string Type { get; }
@@ -46,10 +43,61 @@ namespace Prague_Parking_V2
 
         public static bool RegIsValid(string regNumber) // Kontrollera om registreringsnumret är giltigt
         {
-            return !string.IsNullOrEmpty(regNumber) && RegLetters.IsMatch(regNumber);
+            if (regNumber.Length > 10)
+            {
+                Console.Clear();
+                AnsiConsole.MarkupLine("[red]Your license plate cannot contain more than 10 characters![/]\n");
+                AnsiConsole.MarkupLine("\n\nPress any [slowblink]key[/] to go back to the [yellow]menu[/]...");
+                Console.ReadKey();
+                Console.Clear();
+                return false;
+            }
+            if (regNumber.Length == 0)
+            {
+                Console.Clear();
+                AnsiConsole.MarkupLine("[red]You must enter a license plate number![/]\n");
+                AnsiConsole.MarkupLine("\n\nPress any [slowblink]key[/] to go back to the [yellow]menu[/]...");
+                Console.ReadKey();
+                Console.Clear();
+                return false;
+            }
+            if (regNumber.Any(char.IsWhiteSpace))
+            {
+                Console.Clear();
+                AnsiConsole.MarkupLine("[red]Your license plate cannot contain spaces![/]\n");
+                AnsiConsole.MarkupLine("\n\nPress any [slowblink]key[/] to go back to the [yellow]menu[/]...");
+                Console.ReadKey();
+                Console.Clear();
+                return false;
+            }
+            return true;
+        }
+
+        public static bool RegExists(string regNumber, List<ParkingSpace> parkingSpaces) // Kontrollera om registreringsnumret redan finns i garaget
+        {
+            var fixedReg = FixReg(regNumber);
+            foreach (var space in parkingSpaces)
+            {
+                var existingVehicle = space.Vehicles.FirstOrDefault(v => v.LicensePlate == fixedReg); // Kontrollera om fordonet redan är parkerat med Linq uttryck
+                if (existingVehicle != null)
+                {
+                    Console.Clear();
+                    AnsiConsole.MarkupLine($"[red]A vehicle with the license plate {fixedReg} is already parked in the garage![/]\n");
+                    AnsiConsole.MarkupLine("\n\nPress any [slowblink]key[/] to go back to the [yellow]menu[/]...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    return true;
+                }
+            }
+            return false;
         }
 
 
 
+        public void RestoreParkedAtUtc(DateTime parkedAtUtc)
+        {
+            TimeParked = DateTime.SpecifyKind(parkedAtUtc, DateTimeKind.Utc);
+        }
     }
 }
+

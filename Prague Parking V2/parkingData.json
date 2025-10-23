@@ -1,0 +1,412 @@
+{
+  "SpaceCapacityUnits": 4,
+  "SpaceCount": 100,
+  "Spaces": [
+    {
+      "Index": 1,
+      "Vehicle": [
+        {
+          "Type": "Car",
+          "LicensePlate": "ABC123",
+          "ParkedAtUtc": "2025-10-23T14:57:34.354459Z"
+        }
+      ]
+    },
+    {
+      "Index": 2,
+      "Vehicle": []
+    },
+    {
+      "Index": 3,
+      "Vehicle": []
+    },
+    {
+      "Index": 4,
+      "Vehicle": []
+    },
+    {
+      "Index": 5,
+      "Vehicle": []
+    },
+    {
+      "Index": 6,
+      "Vehicle": []
+    },
+    {
+      "Index": 7,
+      "Vehicle": []
+    },
+    {
+      "Index": 8,
+      "Vehicle": []
+    },
+    {
+      "Index": 9,
+      "Vehicle": []
+    },
+    {
+      "Index": 10,
+      "Vehicle": []
+    },
+    {
+      "Index": 11,
+      "Vehicle": []
+    },
+    {
+      "Index": 12,
+      "Vehicle": []
+    },
+    {
+      "Index": 13,
+      "Vehicle": []
+    },
+    {
+      "Index": 14,
+      "Vehicle": []
+    },
+    {
+      "Index": 15,
+      "Vehicle": []
+    },
+    {
+      "Index": 16,
+      "Vehicle": []
+    },
+    {
+      "Index": 17,
+      "Vehicle": []
+    },
+    {
+      "Index": 18,
+      "Vehicle": []
+    },
+    {
+      "Index": 19,
+      "Vehicle": []
+    },
+    {
+      "Index": 20,
+      "Vehicle": []
+    },
+    {
+      "Index": 21,
+      "Vehicle": []
+    },
+    {
+      "Index": 22,
+      "Vehicle": []
+    },
+    {
+      "Index": 23,
+      "Vehicle": []
+    },
+    {
+      "Index": 24,
+      "Vehicle": []
+    },
+    {
+      "Index": 25,
+      "Vehicle": []
+    },
+    {
+      "Index": 26,
+      "Vehicle": []
+    },
+    {
+      "Index": 27,
+      "Vehicle": []
+    },
+    {
+      "Index": 28,
+      "Vehicle": []
+    },
+    {
+      "Index": 29,
+      "Vehicle": []
+    },
+    {
+      "Index": 30,
+      "Vehicle": []
+    },
+    {
+      "Index": 31,
+      "Vehicle": []
+    },
+    {
+      "Index": 32,
+      "Vehicle": []
+    },
+    {
+      "Index": 33,
+      "Vehicle": []
+    },
+    {
+      "Index": 34,
+      "Vehicle": []
+    },
+    {
+      "Index": 35,
+      "Vehicle": []
+    },
+    {
+      "Index": 36,
+      "Vehicle": []
+    },
+    {
+      "Index": 37,
+      "Vehicle": []
+    },
+    {
+      "Index": 38,
+      "Vehicle": []
+    },
+    {
+      "Index": 39,
+      "Vehicle": []
+    },
+    {
+      "Index": 40,
+      "Vehicle": []
+    },
+    {
+      "Index": 41,
+      "Vehicle": []
+    },
+    {
+      "Index": 42,
+      "Vehicle": []
+    },
+    {
+      "Index": 43,
+      "Vehicle": []
+    },
+    {
+      "Index": 44,
+      "Vehicle": []
+    },
+    {
+      "Index": 45,
+      "Vehicle": []
+    },
+    {
+      "Index": 46,
+      "Vehicle": []
+    },
+    {
+      "Index": 47,
+      "Vehicle": []
+    },
+    {
+      "Index": 48,
+      "Vehicle": []
+    },
+    {
+      "Index": 49,
+      "Vehicle": []
+    },
+    {
+      "Index": 50,
+      "Vehicle": []
+    },
+    {
+      "Index": 51,
+      "Vehicle": []
+    },
+    {
+      "Index": 52,
+      "Vehicle": []
+    },
+    {
+      "Index": 53,
+      "Vehicle": []
+    },
+    {
+      "Index": 54,
+      "Vehicle": []
+    },
+    {
+      "Index": 55,
+      "Vehicle": []
+    },
+    {
+      "Index": 56,
+      "Vehicle": []
+    },
+    {
+      "Index": 57,
+      "Vehicle": []
+    },
+    {
+      "Index": 58,
+      "Vehicle": []
+    },
+    {
+      "Index": 59,
+      "Vehicle": []
+    },
+    {
+      "Index": 60,
+      "Vehicle": []
+    },
+    {
+      "Index": 61,
+      "Vehicle": []
+    },
+    {
+      "Index": 62,
+      "Vehicle": []
+    },
+    {
+      "Index": 63,
+      "Vehicle": []
+    },
+    {
+      "Index": 64,
+      "Vehicle": []
+    },
+    {
+      "Index": 65,
+      "Vehicle": []
+    },
+    {
+      "Index": 66,
+      "Vehicle": []
+    },
+    {
+      "Index": 67,
+      "Vehicle": []
+    },
+    {
+      "Index": 68,
+      "Vehicle": []
+    },
+    {
+      "Index": 69,
+      "Vehicle": []
+    },
+    {
+      "Index": 70,
+      "Vehicle": []
+    },
+    {
+      "Index": 71,
+      "Vehicle": []
+    },
+    {
+      "Index": 72,
+      "Vehicle": []
+    },
+    {
+      "Index": 73,
+      "Vehicle": []
+    },
+    {
+      "Index": 74,
+      "Vehicle": []
+    },
+    {
+      "Index": 75,
+      "Vehicle": []
+    },
+    {
+      "Index": 76,
+      "Vehicle": []
+    },
+    {
+      "Index": 77,
+      "Vehicle": []
+    },
+    {
+      "Index": 78,
+      "Vehicle": []
+    },
+    {
+      "Index": 79,
+      "Vehicle": []
+    },
+    {
+      "Index": 80,
+      "Vehicle": []
+    },
+    {
+      "Index": 81,
+      "Vehicle": []
+    },
+    {
+      "Index": 82,
+      "Vehicle": []
+    },
+    {
+      "Index": 83,
+      "Vehicle": []
+    },
+    {
+      "Index": 84,
+      "Vehicle": []
+    },
+    {
+      "Index": 85,
+      "Vehicle": []
+    },
+    {
+      "Index": 86,
+      "Vehicle": []
+    },
+    {
+      "Index": 87,
+      "Vehicle": []
+    },
+    {
+      "Index": 88,
+      "Vehicle": []
+    },
+    {
+      "Index": 89,
+      "Vehicle": []
+    },
+    {
+      "Index": 90,
+      "Vehicle": []
+    },
+    {
+      "Index": 91,
+      "Vehicle": []
+    },
+    {
+      "Index": 92,
+      "Vehicle": []
+    },
+    {
+      "Index": 93,
+      "Vehicle": []
+    },
+    {
+      "Index": 94,
+      "Vehicle": []
+    },
+    {
+      "Index": 95,
+      "Vehicle": []
+    },
+    {
+      "Index": 96,
+      "Vehicle": []
+    },
+    {
+      "Index": 97,
+      "Vehicle": []
+    },
+    {
+      "Index": 98,
+      "Vehicle": []
+    },
+    {
+      "Index": 99,
+      "Vehicle": []
+    },
+    {
+      "Index": 100,
+      "Vehicle": []
+    }
+  ]
+}

@@ -15,7 +15,7 @@ namespace Prague_Parking_V2
         public int Index { get; }
         public int CapacitySpaces { get; } = 4; // Standardkapacitet för parkeringsplatsen är 4 enheter
 
-        public IReadOnlyList<Vehicle> Vehicles => _vehicles; // Exponerar fordonen som är parkerade i denna plats som en read-only lista
+        public IReadOnlyList<Vehicle> Vehicles => _vehicles; // Exponerar fordonen som är parkerade i denna plats som en read-only lista. 
         public int UsedSpaces => _vehicles.Sum(vehicle => vehicle.Size); // Beräknar det använda utrymmet i parkeringsplatsen
 
 
@@ -53,6 +53,11 @@ namespace Prague_Parking_V2
                 throw new InvalidOperationException("Vehicle with the specified registration number not found in this parking space.");
             }
             return i >= 0; // Returnerar true om fordonet togs bort, annars false
+        }
+
+        public void AddLoadedVehicle(Vehicle vehicle)
+        {
+            _vehicles.Add(vehicle);
         }
     }
 }

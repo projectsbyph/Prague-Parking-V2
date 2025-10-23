@@ -6,14 +6,25 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PragueParkingV2;
+using LibraryPragueParking.Data;
 
 namespace Prague_Parking_V2
 {
     public static class Menu // Meny klass för att hantera användarinteraktion och val i konsolen (UI)
                              //Kommentarer kommer att vara på svenska och kod på engelska
     {
-        // FÄLT
-        private static readonly ParkingGarage _garage = new(spaceCount: 100, spaceCapacityUnits: 4); // Skapar en instans av ParkingGarage med 20 platser och kapacitet på 4 fordon per plats
+        // FÖR JSON LAGRING
+        private static ParkingGarage _garage = null!;
+        private static MyFiles _storage = null!;
+        private static ConfigApp _config = null!;
+
+        public static void Init(ParkingGarage garage, MyFiles storage, ConfigApp config ) // Initierar menyn med parkeringsgaraget och lagringsvägen
+        {
+            _garage = garage; // Parkeringsgarage objekt
+            _storage = storage; // Lagringsväg för att spara och ladda garagets tillstånd
+            _config = config; // Konfigurationsobjekt
+        }
 
         // METOD - HUVUDMENY
         public static void Run()
@@ -43,12 +54,15 @@ namespace Prague_Parking_V2
                         {
                             AnsiConsole.MarkupLine("[green]Parking a vehicle...[/]");
                             ParkVehicleUI(); // Metod för att parkera ett fordon
+                            _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har parkerats
+
                         }
                         break;
                     case "Remove a vehicle":
                         {
                             AnsiConsole.MarkupLine("[green]Removing a vehicle...[/]");
                             RemoveVehicleUI();
+                            _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har tagits bort
                         }
                         break;
                     case "List parked vehicles":
@@ -68,12 +82,15 @@ namespace Prague_Parking_V2
                         {
                             AnsiConsole.MarkupLine("[yellow]Feature coming soon![/]");
                             Pause();
+                            _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har flyttats
                         }
                         break;
                     case "Exit":
                         {
                             AnsiConsole.MarkupLine("[bold red]Exiting the application. Goodbye![/]");
+                            _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd innan programmet avslutas
                             return; // Avsluta programmet
+                            
 
                         }
                 }
@@ -117,12 +134,16 @@ namespace Prague_Parking_V2
             }
 
             if (_garage.TryParkVehicle(vehicle, out int spotNumber)) // Anropar garage objektets metod för att parkera fordonet
-
+            {
                 AnsiConsole.MarkupLine($"[green]Vehicle parked successfully in spot {spotNumber}.[/]");
-
+                _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har parkerats
+            }
+                
             else
-
+            {
                 AnsiConsole.MarkupLine("[red]Parking failed. No available spots.[/]");
+            }
+                
 
             Pause();
             // Fortsätt med nästa metod nedan
@@ -145,6 +166,7 @@ namespace Prague_Parking_V2
             if (_garage.TryRemoveVehicle(regNumber, out Vehicle removedVehicle)) // Anropar garage objektets metod för att ta bort fordonet
             {
                 AnsiConsole.MarkupLine($"[green]Vehicle with registration number {removedVehicle.LicensePlate} removed successfully.[/]");
+                _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har tagits bort
             }
             else
             {

@@ -1,0 +1,18 @@
+{
+	"DefaultSpaceCount": 100,
+	"DefaultSpaceCapacityUnits": 4,
+	"FreeMinutesBeforeCharge": 10,
+	"VehicleTypes": [
+		{
+			"Type": "Car",
+			"CapacityUnits": 4,
+			"ChargePerHour": 20.0
+		},
+		{
+			"Type": "Mc",
+			"CapacityUnits": 2,
+			"ChargePerHour": 10.0
+		},
+		
+	]
+}

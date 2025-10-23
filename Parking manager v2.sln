@@ -7,6 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prague Parking V2", "Prague
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjectPragueParking", "TestProjectPragueParking\TestProjectPragueParking.csproj", "{EEAD619A-967F-4236-B6A4-98A422E1560F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryPragueParking.Data", "LibraryPragueParking.Data\LibraryPragueParking.Data.csproj", "{D91C1FED-388E-4465-9C43-33849CAD016E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		configData.json = configData.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +28,10 @@ Global
 		{EEAD619A-967F-4236-B6A4-98A422E1560F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEAD619A-967F-4236-B6A4-98A422E1560F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEAD619A-967F-4236-B6A4-98A422E1560F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D91C1FED-388E-4465-9C43-33849CAD016E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D91C1FED-388E-4465-9C43-33849CAD016E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D91C1FED-388E-4465-9C43-33849CAD016E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D91C1FED-388E-4465-9C43-33849CAD016E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

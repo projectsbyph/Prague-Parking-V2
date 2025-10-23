@@ -10,7 +10,7 @@ namespace Prague_Parking_V2
     public class Mc : Vehicle // Motorcykel klassen ärver från Vehicle
     {
         public override int Size => 2; // Motorcyklar tar upp 1 enhet av parkeringsutrymmet
-        public override string Type => "Mc"; 
+        public override string Type => "Mc"; // Typ av fordon
         public Mc(string licensePlate) : base(licensePlate) // Konstruktor som anropar basklassens konstruktor
         {
         }
