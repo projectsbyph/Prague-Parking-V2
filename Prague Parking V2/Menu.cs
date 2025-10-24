@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PragueParkingV2;
 using LibraryPragueParking.Data;
+using System.Runtime.CompilerServices;
 
 namespace Prague_Parking_V2
 {
@@ -19,7 +20,7 @@ namespace Prague_Parking_V2
         private static MyFiles _storage = null!;
         private static ConfigApp _config = null!;
 
-        public static void Init(ParkingGarage garage, MyFiles storage, ConfigApp config ) // Initierar menyn med parkeringsgaraget och lagringsvägen
+        public static void Init(ParkingGarage garage, MyFiles storage, ConfigApp config) // Initierar menyn med parkeringsgaraget och lagringsvägen
         {
             _garage = garage; // Parkeringsgarage objekt
             _storage = storage; // Lagringsväg för att spara och ladda garagets tillstånd
@@ -78,7 +79,7 @@ namespace Prague_Parking_V2
                             FindVehicleUI();
                         }
                         break;
-                        case "Move vehicle to another spot": // Framtida funktionalitet
+                    case "Move vehicle to another spot": // Framtida funktionalitet
                         {
                             AnsiConsole.MarkupLine("[yellow]Feature coming soon![/]");
                             Pause();
@@ -90,7 +91,7 @@ namespace Prague_Parking_V2
                             AnsiConsole.MarkupLine("[bold red]Exiting the application. Goodbye![/]");
                             _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd innan programmet avslutas
                             return; // Avsluta programmet
-                            
+
 
                         }
                 }
@@ -112,7 +113,7 @@ namespace Prague_Parking_V2
                 new TextPrompt<string>("Registration number:")
                 .Validate(stringReg =>
                 {
-                    
+
                     var normalizedReg = Vehicle.FixReg(stringReg); // Normalisera registreringsnumret
                     bool isValid = Vehicle.RegIsValid(normalizedReg); // Kontrollera om det normaliserade registreringsnumret är giltigt
 
@@ -138,12 +139,11 @@ namespace Prague_Parking_V2
                 AnsiConsole.MarkupLine($"[green]Vehicle parked successfully in spot {spotNumber}.[/]");
                 _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har parkerats
             }
-                
+
             else
             {
                 AnsiConsole.MarkupLine("[red]Parking failed. No available spots.[/]");
             }
-                
 
             Pause();
             // Fortsätt med nästa metod nedan
@@ -163,6 +163,49 @@ namespace Prague_Parking_V2
                             ? ValidationResult.Success()
                                 : ValidationResult.Error("[red]Input a valid format[/]");
                 }));
+
+            //Hitta forodnet först för att kunna visa kvitto
+            var vehicle = _garage.FindVehicle(regNumber, out int spotNumber); // Anropar garage objektets metod för att hitta fordonet
+            if (vehicle is null)
+            {
+                AnsiConsole.MarkupLine("[red]No vehicle found with the provided registration number.[/]");
+                Pause();
+                return;
+            }
+
+            //Beräkna pris innan borttagning
+            var nowUtc = DateTime.UtcNow;
+            var parkingFee = CalculateParkingFee(vehicle, nowUtc, _config, out var total);
+
+            //Visa kvitto
+            var receiptTable = new Table().Border(TableBorder.Rounded).BorderColor(Color.Cyan1);
+            receiptTable.AddColumn("[bold]Field[/]");
+            receiptTable.AddColumn("[bold]Receipt[/]");
+            receiptTable.AddRow("Registration Number", vehicle.LicensePlate);
+            receiptTable.AddRow("Vehicle Type", vehicle.GetType().Name);
+            receiptTable.AddRow("From", vehicle.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
+            receiptTable.AddRow("To", nowUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
+            receiptTable.AddRow("Total time parked", $"{(int)total.TotalHours} hours and {total.Minutes} minutes");
+            receiptTable.AddRow("Free parking time", $"{_config.FreeMinutesBeforeCharge} minutes");
+            receiptTable.AddRow("Price per hour", vehicle is Car ? $"{_config.CarPricePerHour} CZK" : $"{_config.McPricePerHour} CZK");
+            receiptTable.AddRow("Parking Fee", $"{parkingFee} CZK");
+            AnsiConsole.Write(new Rule("[yellow]Parking Receipt[/]"));
+            AnsiConsole.Write(receiptTable);
+
+            //Användaren bekräftar betalning
+            var confirm = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Confirm payment and remove vehicle?")
+                .AddChoices("Yes", "No"));
+            if (confirm == "No")
+            {
+                AnsiConsole.MarkupLine("[yellow]Payment cancelled. Vehicle not removed.[/]");
+                Pause();
+                return;
+            }
+
+
+            // Nedan anropas garagets metod för att ta bort fordonet
             if (_garage.TryRemoveVehicle(regNumber, out Vehicle removedVehicle)) // Anropar garage objektets metod för att ta bort fordonet
             {
                 AnsiConsole.MarkupLine($"[green]Vehicle with registration number {removedVehicle.LicensePlate} removed successfully.[/]");
@@ -193,7 +236,7 @@ namespace Prague_Parking_V2
                 var unitsBar = string.Concat(Enumerable.Range(1, space.CapacitySpaces).Select(i => i <= usedSpaceUnits ? "[green]█[/]" : "[grey]█[/]")); // Skapar en visuell representation av kapaciteten med gröna och grå block
                 AnsiConsole.MarkupLine(unitsBar); // Visar kapacitetsbaren i konsolen
 
-                if(space.Vehicles.Count == 0) // Om inga fordon är parkerade på platsen
+                if (space.Vehicles.Count == 0) // Om inga fordon är parkerade på platsen
                 {
                     AnsiConsole.MarkupLine("[grey]-- No vehicles parked in this spot --[/]");
                     continue; // Hoppar till nästa iteration av loopen
@@ -249,25 +292,20 @@ namespace Prague_Parking_V2
         }
 
         // KLASS FÖR ATT BERÄKNA PARKERINGSAVGIFT (Framtida funktionalitet)
-        private static class PricingToPark // Fixa parkeringsavgift
+        public static decimal CalculateParkingFee(Vehicle vehicle, DateTime checkoutUtc, ConfigApp cfg, out TimeSpan total) // Metod för att beräkna parkeringsavgift baserat på fordonstyp och parkeringstid
         {
-            public static decimal CalculateParkingFee(Vehicle vehicle, TimeSpan duration) // Metod för att beräkna parkeringsavgift baserat på fordonstyp och parkeringstid
+            var startUtc = vehicle.TimeParked; // Tidpunkt när fordonet parkerades
+            total = checkoutUtc - startUtc; // Total parkeringstid
+
+            if (total.TotalMinutes <= cfg.FreeMinutesBeforeCharge) // Om parkeringstiden är inom den fria tiden
             {
-                decimal ratePerHour = vehicle switch
-                {
-                    Car => 20m,
-                    Mc => 10m,
-                    //Bus => 50m,
-                    //Bike => 5m,
-                    _ => throw new ArgumentException("Unknown vehicle type")
-                };
-                decimal totalFee = ratePerHour * (decimal)Math.Ceiling(duration.TotalHours);
-                return totalFee;
+                return 0m; // Ingen avgift
             }
+            var pricing = vehicle is Car ? cfg.CarPricePerHour : cfg.McPricePerHour; // Avgift per timme baserat på fordonstyp
+            var hoursParked = Math.Ceiling(total.TotalHours); // Avrundar uppåt till närmaste timme
+            return (decimal)hoursParked * pricing; // Beräknar total avgift
         }
 
-       
-        
     }
 }
 

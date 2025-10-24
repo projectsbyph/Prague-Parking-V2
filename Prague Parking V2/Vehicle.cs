@@ -13,7 +13,7 @@ namespace Prague_Parking_V2
     {
         //EGENSKAPER
         public string LicensePlate { get; }
-        public DateTime TimeParked { get; set; } = DateTime.Now;
+        public DateTime TimeParked { get; set; }
 
         public abstract int Size { get; }
         public abstract string Type { get; }
@@ -91,12 +91,15 @@ namespace Prague_Parking_V2
             }
             return false;
         }
-
-
-
+     
         public void RestoreParkedAtUtc(DateTime parkedAtUtc)
         {
             TimeParked = DateTime.SpecifyKind(parkedAtUtc, DateTimeKind.Utc);
+        }
+
+        public void MarkParkedNow()
+        {
+            TimeParked = DateTime.UtcNow;
         }
     }
 }

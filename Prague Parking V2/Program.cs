@@ -32,7 +32,7 @@ internal class Program //Kommentarer kommer att vara på svenska och kod på eng
 
         //INITIALISERA MENY MED GARAGE + LAGRING + CONFIG
         Menu.Init(garage, storagePath, config); //Initierar menyn med parkeringsgaraget och lagringsvägen
-        AnsiConsole.MarkupLine("[bold green]Welcome to Prague Parking V2![/]"); //Välkomstmeddelande detta finns redan ta bort?
+        AnsiConsole.MarkupLine("[bold blue]Welcome to Prague Parking V2![/]"); //Välkomstmeddelande detta finns redan ta bort?
 
         Menu.Run(); //Anropar menyn som hanterar användarinteraktion
     }

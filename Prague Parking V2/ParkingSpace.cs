@@ -37,6 +37,7 @@ namespace Prague_Parking_V2
             {
                 throw new InvalidOperationException("Vehicle cannot fit in this parking space.");
             }
+            vehicle.MarkParkedNow();
             _vehicles.Add(vehicle);
         }
 

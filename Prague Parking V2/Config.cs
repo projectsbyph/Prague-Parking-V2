@@ -10,7 +10,9 @@ namespace Prague_Parking_V2
     {
         public int DefaultSpaceCount { get; }
         public int DefaultSpaceCapacityUnits { get; }
-        public int FreeMinutesBeforeCharge { get; }
+        public int FreeMinutesBeforeCharge { get; set; } = 10;
+        public int CarPricePerHour { get; set; } = 20;
+        public int McPricePerHour { get; set; } = 10;
         public IReadOnlyDictionary<string, VehiclePricing> PricingByType { get; }
         public ConfigApp(int defaultSpaceCount, int defaultSpaceCapacityUnits, int freeMinutesBeforeCharge, IDictionary<string, VehiclePricing> pricingByType)
         {
