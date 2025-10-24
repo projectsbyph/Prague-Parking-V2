@@ -91,7 +91,8 @@ namespace Prague_Parking_V2
             }
             return false;
         }
-     
+
+        //METODER (Hjälpare för att spara och ladda fordonets parkerings tidpunkt)
         public void RestoreParkedAtUtc(DateTime parkedAtUtc)
         {
             TimeParked = DateTime.SpecifyKind(parkedAtUtc, DateTimeKind.Utc);
