@@ -16,13 +16,13 @@ namespace LibraryPragueParking.Data
             public List<SpaceDto> Spaces { get; set; } = new();
         }
         
-        public class SpaceDto
+        public class SpaceDto //Denna klass representerar en parkeringsplats och dess egenskaper för serialisering.
         {
             public int Index { get; set; }
             public List<VehicleDto> Vehicle { get; set; } = new();
         }
 
-        public class VehicleDto
+        public class VehicleDto //Denna klass representerar ett fordon och dess egenskaper för serialisering.
         {
             public string Type { get; set; } = string.Empty; // "Car" eller "Mc"
             public string LicensePlate { get; set; } = string.Empty;
