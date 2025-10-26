@@ -100,6 +100,75 @@ namespace Prague_Parking_V2
             spaceIndex = -1;
             return null; // Vehicle not found
         }
-   
+
+        public bool MoveVehicle(string fixedRegNumber, int targetSpaceIndex, out int fromSpaceIndex, out string? error) // Flytta ett fordon till en annan parkeringsplats
+        {
+            error = null; // Initialisera felmeddelandet som null
+            fromSpaceIndex = -1; // Initialisera frånSpaceIndex som -1
+            var regNumber = Vehicle.FixReg(fixedRegNumber);
+            
+            Vehicle? vehicleToMove = null;
+            ParkingSpace? currentSpace = null;
+
+            // Hitta fordonet och dess nuvarande parkeringsplats
+            foreach (var space in ParkingSpaces)
+            {
+                var vehicle = space.Vehicles.FirstOrDefault(v => v.LicensePlate == regNumber);
+                if (vehicle != null)
+                {
+                    vehicleToMove = vehicle;
+                    currentSpace = space;
+                    break;
+                }
+            }
+
+            if (vehicleToMove == null || currentSpace == null)
+            {
+                error = "Vehicle not found in the garage.";
+                return false; // Fordonet hittades inte
+            }
+
+            if (targetSpaceIndex == currentSpace.Index)
+            {
+                error = "The vehicle is already in the target parking space.";
+                return false; // Fordonet är redan i målparkeringsplatsen
+            }
+
+
+            // Hämtar målparkeringsplatsen
+            var targetSpace = ParkingSpaces.FirstOrDefault(s => s.Index == targetSpaceIndex);
+            if (targetSpace == null || !targetSpace.CanVehicleFit(vehicleToMove))
+            {
+                error = "Target parking space is invalid or does not have enough space.";
+                return false; // Målparkeringsplatsen är ogiltig eller har inte tillräckligt med utrymme
+            }
+
+            //Kolla om fordonet rymms i målparkeringsplatsen
+            var usedUnits = targetSpace.Vehicles.Sum(v => v.Size);
+            if (usedUnits + vehicleToMove.Size > targetSpace.CapacitySpaces)
+            {
+                error = "Not enough space in the target parking space.";
+                return false; // Inte tillräckligt med utrymme i målparkeringsplatsen
+            }
+
+            // Ta bort fordonet från den nuvarande parkeringsplatsen och parkera det i målparkeringsplatsen
+            var removed = currentSpace.RemoveVehicle(regNumber);
+            if (removed)
+            {
+                targetSpace.ParkVehicle(vehicleToMove);
+                fromSpaceIndex = currentSpace.Index;
+                return true; // Fordonet flyttades framgångsrikt
+            }
+            else
+            {
+                error = "Failed to remove the vehicle from its current parking space.";
+                return false; // Misslyckades med att ta bort fordonet från dess nuvarande parkeringsplats
+            }
+
+            //Flyttar utan att ändra parkerings tid
+            targetSpace.AddLoadedVehicle(vehicleToMove);
+            return true;
+        }
+
     }
 }

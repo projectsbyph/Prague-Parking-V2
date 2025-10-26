@@ -4,13 +4,7 @@
   "Spaces": [
     {
       "Index": 1,
-      "Vehicle": [
-        {
-          "Type": "Car",
-          "LicensePlate": "YUK932",
-          "ParkedAtUtc": "2025-10-24T16:28:25.0062081Z"
-        }
-      ]
+      "Vehicle": []
     },
     {
       "Index": 2,
@@ -32,7 +26,13 @@
     },
     {
       "Index": 5,
-      "Vehicle": []
+      "Vehicle": [
+        {
+          "Type": "Car",
+          "LicensePlate": "CBR02J",
+          "ParkedAtUtc": "2025-10-26T12:12:21.9745784Z"
+        }
+      ]
     },
     {
       "Index": 6,

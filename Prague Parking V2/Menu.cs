@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using PragueParkingV2;
 using LibraryPragueParking.Data;
 using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations;
+using ConsoleValidationResult = Spectre.Console.ValidationResult;
 
 namespace Prague_Parking_V2
 {
@@ -81,8 +83,8 @@ namespace Prague_Parking_V2
                         break;
                     case "Move vehicle to another spot": // Framtida funktionalitet
                         {
-                            AnsiConsole.MarkupLine("[yellow]Feature coming soon![/]");
-                            Pause();
+                            AnsiConsole.MarkupLine("[green]Moving vehicle...[/]");
+                            MoveVehicleUI();
                             _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har flyttats
                         }
                         break;
@@ -118,8 +120,8 @@ namespace Prague_Parking_V2
                     bool isValid = Vehicle.RegIsValid(normalizedReg); // Kontrollera om det normaliserade registreringsnumret är giltigt
 
                     return isValid
-                        ? ValidationResult.Success()
-                        : ValidationResult.Error("[red]Input a valid format[/]");
+                        ? ConsoleValidationResult.Success()
+                        : ConsoleValidationResult.Error("[red]Input a valid format[/]");
                 }));
 
             Vehicle vehicle;
@@ -157,11 +159,11 @@ namespace Prague_Parking_V2
                 .Validate(stringReg =>
                 {
                     if (string.IsNullOrWhiteSpace(stringReg))
-                        return ValidationResult.Error("[red]Registration number can not be left empty[/]");
+                        return ConsoleValidationResult.Error("[red]Registration number can not be left empty[/]");
                     var normal = Vehicle.FixReg(stringReg);
                     return Vehicle.RegIsValid(normal)
-                            ? ValidationResult.Success()
-                                : ValidationResult.Error("[red]Input a valid format[/]");
+                            ? ConsoleValidationResult.Success()
+                                : ConsoleValidationResult.Error("[red]Input a valid format[/]");
                 }));
 
             //Hitta forodnet först för att kunna visa kvitto
@@ -284,6 +286,44 @@ namespace Prague_Parking_V2
             Pause();
         }
 
+        // METOD UI FÖR ATT FLYTTA FORDON
+        public static void MoveVehicleUI() // Metod för att flytta ett fordon till en annan parkeringsplats (framtida funktionalitet)
+        {
+            var regNumber = AnsiConsole.Prompt(new TextPrompt<string>("Enter the registration number of the vehicle to move: ")
+                .Validate(stringReg =>
+                {
+                    if (string.IsNullOrWhiteSpace(stringReg))
+                        return ConsoleValidationResult.Error("[red]Registration number can not be left empty[/]");
+                    var normal = Vehicle.FixReg(stringReg);
+                    return Vehicle.RegIsValid(normal)
+                            ? ConsoleValidationResult.Success()
+                                : ConsoleValidationResult.Error("[red]Input a valid format[/]");
+                }));
+
+            var maxIndex = _garage.ParkingSpaces.Count;
+            var targetSpot = AnsiConsole.Prompt(
+                new TextPrompt<int>($"Enter the target parking spot " +
+                $"(0 to {maxIndex}): ")
+                .Validate(index =>
+                {
+                    return (index >= 1 && index <= maxIndex)
+                        ? ConsoleValidationResult.Success()
+                        : ConsoleValidationResult.Error($"[red]Please enter a valid spot index between 0 and {maxIndex}[/]");
+                }));
+
+            if (_garage.MoveVehicle(regNumber, targetSpot, out int fromIndex, out string? error)) // Anropar garage objektets metod för att flytta fordonet
+            {
+                AnsiConsole.MarkupLine($"[green]Vehicle with registration number {regNumber} moved successfully from spot {fromIndex} to spot {targetSpot}.[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine($"[red]Failed to move vehicle: {error}[/]");
+
+            }
+
+            Pause();
+        }
+
         // HJÄLPMETOD FÖR ATT PAUSA PROGRAMMET
         private static void Pause() // Metod för att pausa programmet och vänta på användarens input
         {
@@ -291,7 +331,7 @@ namespace Prague_Parking_V2
             Console.ReadKey(true);
         }
 
-        // KLASS FÖR ATT BERÄKNA PARKERINGSAVGIFT (Framtida funktionalitet)
+        // KLASS FÖR ATT BERÄKNA PARKERINGSAVGIFT 
         public static decimal CalculateParkingFee(Vehicle vehicle, DateTime checkoutUtc, ConfigApp cfg, out TimeSpan total) // Metod för att beräkna parkeringsavgift baserat på fordonstyp och parkeringstid
         {
             var startUtc = vehicle.TimeParked; // Tidpunkt när fordonet parkerades
