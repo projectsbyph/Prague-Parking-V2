@@ -11,6 +11,7 @@ using LibraryPragueParking.Data;
 using System.Runtime.CompilerServices;
 using System.ComponentModel.DataAnnotations;
 using ConsoleValidationResult = Spectre.Console.ValidationResult;
+using System.Threading.Tasks.Sources;
 
 namespace Prague_Parking_V2
 {
@@ -39,6 +40,7 @@ namespace Prague_Parking_V2
             "List parked vehicles",
             "Find a vehicle",
             "Move vehicle to another spot", // Framtida funktionalitet
+            "Reset garage from config file",
             "Exit"
         };
 
@@ -86,6 +88,24 @@ namespace Prague_Parking_V2
                             AnsiConsole.MarkupLine("[green]Moving vehicle...[/]");
                             MoveVehicleUI();
                             _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har flyttats
+                        }
+                        break;
+                    case "Reset garage from config file":
+                        var cfgStorage = new ConfigFiles("../../../configData.json"); // Skapar en instans av ConfigFiles med angiven sökväg
+                        var configDto = cfgStorage.LoadOrDefault(); // Laddar konfigurationsdata från filen eller standardkonfigurationen
+
+                        var confirmReset = AnsiConsole.Confirm("Are you sure you want to reset the garage? This will remove all parked vehicles.");
+                        if (confirmReset)
+                        {
+                            _garage = new ParkingGarage(_config.DefaultSpaceCount, _config.DefaultSpaceCapacityUnits);
+                            AnsiConsole.MarkupLine("[green]Garage has been reset to default configuration.[/]");
+                            _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter återställning
+                            Menu.Init(_garage, _storage, _config); // Re-initialisera menyn med det nya garaget
+                            AnsiConsole.MarkupLine("[green]Menu re-initialized with the new garage.[/]");
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine("[yellow]Garage reset cancelled.[/]");
                         }
                         break;
                     case "Exit":
@@ -302,7 +322,7 @@ namespace Prague_Parking_V2
 
             var maxIndex = _garage.ParkingSpaces.Count;
             var targetSpot = AnsiConsole.Prompt(
-                new TextPrompt<int>($"Enter the target parking spot " +
+                new TextPrompt<int>($"Enter to which spot you want to move the vehicle " +
                 $"(0 to {maxIndex}): ")
                 .Validate(index =>
                 {

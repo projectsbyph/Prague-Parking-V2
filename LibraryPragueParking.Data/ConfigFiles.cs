@@ -13,7 +13,6 @@ namespace LibraryPragueParking.Data
 
     public class ConfigFiles
     {
-
         public sealed class ConfigAppDto
         {
             public int DefaultSpaceCount { get; set; }

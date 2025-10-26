@@ -12,13 +12,7 @@
     },
     {
       "Index": 3,
-      "Vehicle": [
-        {
-          "Type": "Mc",
-          "LicensePlate": "ASD123",
-          "ParkedAtUtc": "2025-10-24T15:31:56.7276591Z"
-        }
-      ]
+      "Vehicle": []
     },
     {
       "Index": 4,
@@ -26,13 +20,7 @@
     },
     {
       "Index": 5,
-      "Vehicle": [
-        {
-          "Type": "Car",
-          "LicensePlate": "CBR02J",
-          "ParkedAtUtc": "2025-10-26T12:12:21.9745784Z"
-        }
-      ]
+      "Vehicle": []
     },
     {
       "Index": 6,
