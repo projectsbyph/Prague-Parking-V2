@@ -94,7 +94,7 @@ namespace Prague_Parking_V2
                         var cfgStorage = new ConfigFiles("../../../configData.json"); // Skapar en instans av ConfigFiles med angiven sökväg
                         var configDto = cfgStorage.LoadOrDefault(); // Laddar konfigurationsdata från filen eller standardkonfigurationen
 
-                        var confirmReset = AnsiConsole.Confirm("Are you sure you want to reset the garage? This will remove all parked vehicles.");
+                        var confirmReset = AnsiConsole.Confirm("Are you sure you want to reset the garage? This will remove all parked vehicles and update all values from the config file.");
                         if (confirmReset)
                         {
                             _garage = new ParkingGarage(_config.DefaultSpaceCount, _config.DefaultSpaceCapacityUnits);
@@ -127,8 +127,16 @@ namespace Prague_Parking_V2
             var type = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("What kind of Vehicle do you want to park?")
-                .AddChoices("Car", "Mc", "Exit"));
-            if (type == "Exit") { return; }
+                .AddChoices("Car", "Mc", "Bus", "Bike", "Exit"));
+            if (type == "Exit") 
+            { return; }
+
+            if (type == "Bus" || type == "Bike") // Hantera ogiltiga fordonstyper
+            {
+                AnsiConsole.MarkupLine("[yellow] Will be implemented in the next update.[/]");
+                Pause();
+                return;
+            }
 
             // nedan sker UI validering (format) och modellen validerar igen i konstruktorn
             var regNumber = AnsiConsole.Prompt(

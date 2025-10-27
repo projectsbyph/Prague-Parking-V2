@@ -10,7 +10,7 @@
 		},
 		{
 			"Type": "Mc",
-			"CapacityUnits": 2,
+			"CapacityUnits": 2, 
 			"ChargePerHour": 10.0
 		}
 		
