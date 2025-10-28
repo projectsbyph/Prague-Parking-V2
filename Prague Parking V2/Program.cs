@@ -1,52 +1,58 @@
-﻿using Prague_Parking_V2;
+﻿// Namespace: Prague_Parking_V2
 using LibraryPragueParking.Data;
 using Spectre.Console;
+using System;
+using System.IO;
+using System.Text.Json;
 
-namespace PragueParkingV2;
-
-internal class Program //Kommentarer kommer att vara på svenska och kod på engelska
+namespace Prague_Parking_V2
 {
-    static void Main(string[] args)
+    internal class Program
     {
-        AnsiConsole.Write(new FigletText("PRAGUE PARKING V2").Centered().Color(Color.Blue));
-        AnsiConsole.MarkupLine("[slowblink]This application helps you park vehicles in Prague.[/]");
-        Style first = new(
+        private static ConfigApp _config = null!;
 
-        foreground: Color.Blue,
-        background: Color.White,
-        decoration: Decoration.Underline | Decoration.SlowBlink);
+        static void Main(string[] args)
+        {
+            AnsiConsole.Write(new FigletText("PRAGUE PARKING V2").Centered().Color(Color.Blue));
+            AnsiConsole.MarkupLine("[slowblink]This application helps you park vehicles in Prague.[/]");
 
-        //LÄS CONGIG
-        var cfgStorage = new ConfigFiles("../../../configData.json"); //Skapar en instans av ConfigFiles med angiven sökväg)
-        var configDto = cfgStorage.LoadOrDefault(); //Laddar konfigurationsdata från filen eller standardkonfigurationen
-        var config = ConfigMapper.ToModel(configDto); //Mapper från DTO till ConfigApp modell
+            // 1) Läs config (direkt till ConfigApp)
+            var configPath = Path.Combine(AppContext.BaseDirectory, "configData.json");
+            var json = File.ReadAllText(configPath);
+            var opts = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                PropertyNameCaseInsensitive = true
+            };
+            _config = JsonSerializer.Deserialize<ConfigApp>(json, opts)!;
+                     
+            // 2) Läs garage-data (oförändrat)
+            var storagePath = new MyFiles("../../../parkingData.json");
+            var dto = storagePath.TryLoad();
 
-        //LÄS GARAGE DATA
-        var storagePath = new MyFiles("../../../parkingData.json"); //Skapar en instans av MyFiles med angiven sökväg
-        var dto = storagePath.TryLoad(); //Försöker ladda parkeringsgaraget från filen
+            if (dto != null && (dto.SpaceCapacityUnits <= 0 || dto.SpaceCount <= 0))
+            {
+                AnsiConsole.MarkupLine("[red]Warning:[/] Invalid data in storage file. A new garage will be created using default configuration.");
+                dto = null;
+            }
 
-        //SKAPA GARAGE FRÅN CONFIG
-        var garage = dto is not null
-            ? Mapper.FromDto(dto) //Om dto inte är null, mappa från DTO till ParkingGarage
-            : new ParkingGarage(100, 4); //Annars skapa ett nytt ParkingGarage med 10 platser och kapacitet 4
+            var spaceCount = _config.DefaultSpaceCount > 0 ? _config.DefaultSpaceCount : 100;  
+            var capPerSpace = _config.DefaultSpaceCapacityUnits > 0 ? _config.DefaultSpaceCapacityUnits : 4;
 
-        //INITIALISERA MENY MED GARAGE + LAGRING + CONFIG
-        Menu.Init(garage, storagePath, config); //Initierar menyn med parkeringsgaraget och lagringsvägen
-        AnsiConsole.MarkupLine("[bold blue]Welcome to Prague Parking V2![/]"); //Välkomstmeddelande detta finns redan ta bort?
+            // 3) Skapa garage enligt config (inte hårdkodat)
+            var garage = dto is not null
+                ? Mapper.FromDto(dto, _config)
+                : new ParkingGarage(_config.DefaultSpaceCount, _config.DefaultSpaceCapacityUnits);
 
-        Menu.Run(); //Anropar menyn som hanterar användarinteraktion
+            AnsiConsole.MarkupLine($"[grey]CFG cap/space={_config.DefaultSpaceCapacityUnits}[/]");
+            AnsiConsole.MarkupLine($"[grey]GAR first cap={garage.ParkingSpaces[0].CapacitySpaces}[/]");
+
+            // 4) Initiera meny med garage + storage + config
+            Menu.Init(garage, storagePath, _config);
+            AnsiConsole.MarkupLine("[bold blue]Welcome to Prague Parking V2![/]");
+
+            Menu.Run();
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-//ANROPA MENU.CS OCH STARTAR PROGRAMMET. HÄR SKA ENDAST SWITCHCASE FINNAS SOM ANROPAR OLIKA METODER I MENU.CS
-
-
-

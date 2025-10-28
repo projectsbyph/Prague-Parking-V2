@@ -13,7 +13,7 @@ namespace Prague_Parking_V2
 
         // EGENSKAPER
         public int Index { get; }
-        public int CapacitySpaces { get; } = 4; // Standardkapacitet för parkeringsplatsen är 4 enheter
+        public int CapacitySpaces { get; private set; } // Standardkapacitet för parkeringsplatsen är 4 enheter
 
         public IReadOnlyList<Vehicle> Vehicles => _vehicles; // Exponerar fordonen som är parkerade i denna plats som en read-only lista. 
         public int UsedSpaces => _vehicles.Sum(vehicle => vehicle.Size); // Beräknar det använda utrymmet i parkeringsplatsen
@@ -21,9 +21,11 @@ namespace Prague_Parking_V2
 
 
         // KONSTRUKTOR
-        public ParkingSpace(int index, int capacitySpaces = 1) // Konstruktor för parkeringsplatsen
+        public ParkingSpace(int index, int capacitySpaces) // Konstruktor för parkeringsplatsen
         {
             Index = index; // Sätt index för parkeringsplatsen
+            if (capacitySpaces <= 0)
+                throw new ArgumentOutOfRangeException(nameof(capacitySpaces), "Capacity must be greater than zero.");
             CapacitySpaces = capacitySpaces; // Sätt kapacitet för parkeringsplatsen
         }
 

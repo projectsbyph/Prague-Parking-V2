@@ -8,7 +8,7 @@ using static LibraryPragueParking.Data.DTO;
 
 namespace Prague_Parking_V2
 {
-    internal class Mapper
+    internal class Mapper // Mapping domän -> DTO och DTO -> domän
     {
         public static GarageDto ToDto(ParkingGarage garage)
         {
@@ -37,9 +37,24 @@ namespace Prague_Parking_V2
         }
 
         //Mapping DTO -> domän
-        public static ParkingGarage FromDto(GarageDto dto)
+        public static ParkingGarage FromDto(GarageDto dto, ConfigApp cfg)
         {
-            var garage = new ParkingGarage(dto.SpaceCount, dto.SpaceCapacityUnits);
+            // Fallback
+            const int DEFAULT_SPACE_COUNT_FALLBACK = 100;
+            const int DEFAULT_SPACE_CAPACITY_FALLBACK = 4;
+
+            var capacity = dto.SpaceCapacityUnits > 0
+                ? dto.SpaceCapacityUnits
+                : cfg.DefaultSpaceCapacityUnits > 0 ? cfg.DefaultSpaceCapacityUnits:
+                DEFAULT_SPACE_CAPACITY_FALLBACK;
+
+            var spaceCount = dto.SpaceCount > 0
+                ? dto.SpaceCount
+                : cfg.DefaultSpaceCount > 0 ? cfg.DefaultSpaceCount:
+                DEFAULT_SPACE_COUNT_FALLBACK;
+
+            // Skapa garage
+            var garage = new ParkingGarage(spaceCount, capacity);
             
             foreach (var spaceDto in dto.Spaces)
             {
@@ -47,9 +62,13 @@ namespace Prague_Parking_V2
 
                 foreach (var vehicleDto in spaceDto.Vehicle)
                 {
-                    Vehicle vehicle = vehicleDto.Type == "Car"
+                    Vehicle vehicle = vehicleDto.Type.Equals("Car", System.StringComparison.OrdinalIgnoreCase)
                     ? new Car(vehicleDto.LicensePlate)
                     : new Mc(vehicleDto.LicensePlate);
+
+                    // Applicera specifikationer från config
+                    var spec = cfg.VehicleTypes.First(v => v.Type.Equals(vehicleDto.Type, StringComparison.OrdinalIgnoreCase));
+                    vehicle.ApplySpec(spec.ChargePerHour, spec.CapacityUnits);
 
                     vehicle.RestoreParkedAtUtc(vehicleDto.ParkedAtUtc);
                     space.AddLoadedVehicle(vehicle);

@@ -7,35 +7,18 @@
       "Vehicle": [
         {
           "Type": "Car",
-          "LicensePlate": "ASD123",
-          "ParkedAtUtc": "2025-10-26T20:52:11.5158947Z"
+          "LicensePlate": "ABC123",
+          "ParkedAtUtc": "2025-10-28T10:41:39.6837148Z"
         }
       ]
     },
     {
       "Index": 2,
-      "Vehicle": [
-        {
-          "Type": "Mc",
-          "LicensePlate": "ABC213",
-          "ParkedAtUtc": "2025-10-27T15:05:13.1645816Z"
-        },
-        {
-          "Type": "Mc",
-          "LicensePlate": "ABC123",
-          "ParkedAtUtc": "2025-10-27T15:05:38.1029699Z"
-        }
-      ]
+      "Vehicle": []
     },
     {
       "Index": 3,
-      "Vehicle": [
-        {
-          "Type": "Car",
-          "LicensePlate": "TYP123",
-          "ParkedAtUtc": "2025-10-27T15:15:49.0384816Z"
-        }
-      ]
+      "Vehicle": []
     },
     {
       "Index": 4,

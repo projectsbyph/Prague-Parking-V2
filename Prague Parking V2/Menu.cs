@@ -6,7 +6,7 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PragueParkingV2;
+using Prague_Parking_V2;
 using LibraryPragueParking.Data;
 using System.Runtime.CompilerServices;
 using System.ComponentModel.DataAnnotations;
@@ -128,7 +128,7 @@ namespace Prague_Parking_V2
                 new SelectionPrompt<string>()
                 .Title("What kind of Vehicle do you want to park?")
                 .AddChoices("Car", "Mc", "Bus", "Bike", "Exit"));
-            if (type == "Exit") 
+            if (type == "Exit")
             { return; }
 
             if (type == "Bus" || type == "Bike") // Hantera ogiltiga fordonstyper
@@ -152,11 +152,20 @@ namespace Prague_Parking_V2
                         : ConsoleValidationResult.Error("[red]Input a valid format[/]");
                 }));
 
+            if (Vehicle.RegExists(regNumber, _garage.ParkingSpaces)) // Kontrollera om fordonet redan är parkerat
+            {
+                AnsiConsole.MarkupLine("[red]A vehicle with this registration number is already parked in the garage.[/]");
+                Pause();
+                return;
+            }
+
             Vehicle vehicle;
             try // Skapar fordon baserat på användarens val
             {
                 vehicle = type == "Car" ? new Car(regNumber) // Om användaren valde "Car", skapa en Car-instans
                     : new Mc(regNumber); // Annars skapa en Motorcycle-instans
+                var spec = GetSpec(type);
+                vehicle.ApplySpec(spec.ChargePerHour, spec.CapacityUnits); // Applicera fordonsspecifikationer från config
             }
             catch (Exception exception) // Fångar eventuella undantag vid skapandet av fordonet
             {
@@ -178,6 +187,16 @@ namespace Prague_Parking_V2
             Pause();
             // Fortsätt med nästa metod nedan
         }
+
+        private static double GetRate(string type) =>
+            (double)_config.VehicleTypes
+            .First(vehicle => vehicle.Type.Equals(type, StringComparison.OrdinalIgnoreCase))
+            .ChargePerHour;
+
+        private static VehicleSpec GetSpec(string type) =>
+           _config.VehicleTypes
+           .First(vehicle => vehicle.Type.Equals(type, StringComparison.OrdinalIgnoreCase));
+
 
         // METOD UI FÖR ATT TA BORT FORDON
         public static void RemoveVehicleUI() // Metod för att ta bort ett fordon
@@ -217,7 +236,7 @@ namespace Prague_Parking_V2
             receiptTable.AddRow("To", nowUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
             receiptTable.AddRow("Total time parked", $"{(int)total.TotalHours} hours and {total.Minutes} minutes");
             receiptTable.AddRow("Free parking time", $"{_config.FreeMinutesBeforeCharge} minutes");
-            receiptTable.AddRow("Price per hour", vehicle is Car ? $"{_config.CarPricePerHour} CZK" : $"{_config.McPricePerHour} CZK");
+            receiptTable.AddRow("Price per hour", vehicle is Car ? $"{GetRate("Car")} CZK" : $"{GetRate("Mc")} CZK");
             receiptTable.AddRow("Parking Fee", $"{parkingFee} CZK");
             AnsiConsole.Write(new Rule("[yellow]Parking Receipt[/]"));
             AnsiConsole.Write(receiptTable);
@@ -365,13 +384,16 @@ namespace Prague_Parking_V2
             var startUtc = vehicle.TimeParked; // Tidpunkt när fordonet parkerades
             total = checkoutUtc - startUtc; // Total parkeringstid
 
+            var totalMinutes = (decimal)total.TotalMinutes;
             if (total.TotalMinutes <= cfg.FreeMinutesBeforeCharge) // Om parkeringstiden är inom den fria tiden
             {
                 return 0m; // Ingen avgift
             }
-            var pricing = vehicle is Car ? cfg.CarPricePerHour : cfg.McPricePerHour; // Avgift per timme baserat på fordonstyp
-            var hoursParked = Math.Ceiling(total.TotalHours); // Avrundar uppåt till närmaste timme
-            return (decimal)hoursParked * pricing; // Beräknar total avgift
+
+            var pricing = vehicle is Car ? GetRate("Car") : GetRate("Mc"); // Avgift per timme baserat på fordonstyp
+            var billableMinutes = totalMinutes - cfg.FreeMinutesBeforeCharge; // Beräknar debiterbara minuter efter att ha dragit av den fria tiden
+            var billableHours = Math.Ceiling(billableMinutes / 60m); // Runda upp till närmaste timme
+            return billableHours * (decimal)pricing; // Beräknar total avgift
         }
 
     }

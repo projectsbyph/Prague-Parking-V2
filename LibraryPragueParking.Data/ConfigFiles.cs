@@ -25,7 +25,7 @@ namespace LibraryPragueParking.Data
         public sealed class VehicleTypeDto
         {
             public string Type { get; set; } = string.Empty; // "Car" eller "Mc"
-            public int SizeUnits { get; set; }
+            public int CapacityUnits { get; set; }
             public decimal HourlyRate { get; set; }
         }
 
@@ -68,8 +68,8 @@ namespace LibraryPragueParking.Data
             FreeMinutesBeforeCharge = 10,
             VehicleTypes = new()
             {
-                new VehicleTypeDto {Type = "Car", SizeUnits = 4, HourlyRate = 20m}, 
-                new VehicleTypeDto {Type = "Mc", SizeUnits = 2, HourlyRate = 10m},
+                new VehicleTypeDto {Type = "Car", CapacityUnits = 4, HourlyRate = 20m}, 
+                new VehicleTypeDto {Type = "Mc", CapacityUnits = 2, HourlyRate = 10m},
 
             }
         };

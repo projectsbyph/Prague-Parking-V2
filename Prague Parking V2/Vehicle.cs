@@ -13,15 +13,19 @@ namespace Prague_Parking_V2
     {
         //EGENSKAPER
         public string LicensePlate { get; }
-        public DateTime TimeParked { get; set; }
-
-        public abstract int Size { get; }
-        public abstract string Type { get; }
+        public DateTime TimeParked { get; protected set; }
+        public int Size { get; set; }
+        public decimal HourlyRate { get; private set; }
+        public string Type { get; set; }
 
 
         //KONSTRUKTOR
-        protected Vehicle(string licensePlate)
+        protected Vehicle(string licensePlate, string type)
         {
+            LicensePlate = FixReg(licensePlate);
+            Type = type;
+            TimeParked = DateTime.UtcNow;
+
             var normalizedReg = FixReg(licensePlate);
             if (!RegIsValid(normalizedReg))
             {
@@ -30,9 +34,10 @@ namespace Prague_Parking_V2
             LicensePlate = normalizedReg;
         }
 
-        public override string ToString()
+        public void ApplySpec(decimal hourlyRate, int sizeUnits)
         {
-            return $"{Type} - License Plate: {LicensePlate}, Parked At: {TimeParked}";
+            HourlyRate = hourlyRate;
+            Size = sizeUnits;
         }
 
         //METODER (Hjälpare för UI att visa fordonets info)

@@ -11,14 +11,22 @@ namespace Prague_Parking_V2
     public class ParkingGarage
     {
         public List<ParkingSpace> ParkingSpaces { get; } = new(); // Lista över parkeringsplatser
+        public IReadOnlyList<ParkingSpace> Spaces => ParkingSpaces; // Exponerar parkeringsplatserna som en read-only lista
+
 
 
         // KONSTRUKTOR
         public ParkingGarage(int spaceCount, int spaceCapacityUnits)  // Konstruktor för parkeringsgaraget
         {
-            ParkingSpaces = Enumerable.Range(1, spaceCount)
-                .Select(i => new ParkingSpace(i, spaceCapacityUnits))
-                .ToList();
+            if (spaceCount <= 0)
+                throw new ArgumentOutOfRangeException(nameof(spaceCount), "Space count must be greater than zero.");
+            if (spaceCapacityUnits <= 0)
+                throw new ArgumentOutOfRangeException(nameof(spaceCapacityUnits), "Space capacity must be greater than zero.");
+
+            for (int i = 0; i < spaceCount; i++)
+            {
+                ParkingSpaces.Add(new ParkingSpace(i+1, spaceCapacityUnits)); // Skapa och lägg till parkeringsplatser i garaget
+            }
         }
 
         // PARKERA FORDON
@@ -27,7 +35,7 @@ namespace Prague_Parking_V2
             var reg = vehicle.LicensePlate;
             foreach (var space in ParkingSpaces)
             {
-                var existingVehicle = space.Vehicles.FirstOrDefault(v => v.LicensePlate == reg); // Kontrollera om fordonet redan är parkerat
+                var existingVehicle = space.Vehicles.FirstOrDefault(vehicle => vehicle.LicensePlate == reg); // Kontrollera om fordonet redan är parkerat
                 if (existingVehicle != null)
                 {
                     spaceIndex = -1;
@@ -65,24 +73,6 @@ namespace Prague_Parking_V2
             return false; // Fordonet hittades inte
         }
 
-        // CHECKOUT FORDON (SKA VARA KÄRNMETOD)
-        public bool CheckoutVehicle(string fixedRegNumber, out int spaceIndex) // Ta bort ett fordon från garaget
-        {
-            var regNumber = Vehicle.FixReg(fixedRegNumber);
-
-            foreach (var space in ParkingSpaces)
-            {
-                var vehicle = space.Vehicles.FirstOrDefault(v => v.LicensePlate == regNumber); // Hitta fordonet i parkeringsplatsen genom att matcha registreringsnumret med fordonets LicensePlate-egenskap
-                if (vehicle != null && space.RemoveVehicle(regNumber))
-                {
-                    spaceIndex = space.Index;
-                    return true;
-                }
-            }
-            spaceIndex = -1;
-            return false; // Fordonet hittades inte
-        }
-
         // HITTA FORDON
         public Vehicle? FindVehicle(string fixedRegNumber, out int spaceIndex) //Hitta ett fordon i garaget
         {
@@ -106,7 +96,7 @@ namespace Prague_Parking_V2
             error = null; // Initialisera felmeddelandet som null
             fromSpaceIndex = -1; // Initialisera frånSpaceIndex som -1
             var regNumber = Vehicle.FixReg(fixedRegNumber);
-            
+
             Vehicle? vehicleToMove = null;
             ParkingSpace? currentSpace = null;
 
@@ -165,9 +155,9 @@ namespace Prague_Parking_V2
                 return false; // Misslyckades med att ta bort fordonet från dess nuvarande parkeringsplats
             }
 
-            //Flyttar utan att ändra parkerings tid
+            /*Flyttar utan att ändra parkerings tid
             targetSpace.AddLoadedVehicle(vehicleToMove);
-            return true;
+            return true;*/
         }
 
     }
