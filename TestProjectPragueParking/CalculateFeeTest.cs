@@ -34,7 +34,7 @@ namespace TestProjectPragueParking
         }
 
         [TestMethod]
-        public void Fee_Is_Zero_When_Parked_Less_Than_Free_Minutes()
+        public void Fee_Is_Zero_When_Parked_Less_Than_Free_Minutes() // Test case where parked time is less than free minutes
         {
             var car = new Car("ABC123");
             car.ApplySpec(20m, 4);
@@ -47,7 +47,7 @@ namespace TestProjectPragueParking
 
             var fee = Menu.CalculateParkingFee(car, DateTime.UtcNow, cfg, out var total);
 
-            Assert.AreEqual(0m, fee, "The fee should be 0m when total time <= free time.");
+            Assert.AreEqual(0m, fee, "The fee should be 0m when total time <= free time."); 
         }
 
         [TestMethod]
