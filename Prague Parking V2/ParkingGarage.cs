@@ -163,7 +163,6 @@ namespace Prague_Parking_V2
         }
 
         public bool TryResizeSpace(int newSpaceCount, int newSpaceCapacity, out string? error) // Försök att ändra storleken på en parkeringsplats
-
         {
             if (newSpaceCount <= 0)
             {
@@ -201,7 +200,15 @@ namespace Prague_Parking_V2
             }
             else if (newSpaceCount < currentSpaceCount)
             {
-                ParkingSpaces.RemoveRange(newSpaceCount, currentSpaceCount - newSpaceCount); // Ta bort överflödiga parkeringsplatser
+                for (int i = newSpaceCount; i < currentSpaceCount; i++)
+                {
+                    if (ParkingSpaces[i].Vehicles.Count > 0)
+                    {
+                        error = $"Cannot shrink to {newSpaceCount}: space {ParkingSpaces[i].Index} is not empty.";
+                        return false;
+                    }
+                }
+                ParkingSpaces.RemoveRange(newSpaceCount, currentSpaceCount - newSpaceCount);
             }
             error = null;
             return true;
