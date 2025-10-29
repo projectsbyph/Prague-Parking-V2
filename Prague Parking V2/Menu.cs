@@ -1,17 +1,18 @@
-﻿using Spectre.Console;
+﻿using LibraryPragueParking.Data;
+using Prague_Parking_V2;
+using Spectre.Console;
 using Spectre.Console.Rendering;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.Design;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Prague_Parking_V2;
-using LibraryPragueParking.Data;
 using System.Runtime.CompilerServices;
-using System.ComponentModel.DataAnnotations;
-using ConsoleValidationResult = Spectre.Console.ValidationResult;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
+using ConsoleValidationResult = Spectre.Console.ValidationResult;
 
 namespace Prague_Parking_V2
 {
@@ -40,7 +41,8 @@ namespace Prague_Parking_V2
             "List parked vehicles",
             "Find a vehicle",
             "Move vehicle to another spot", // Framtida funktionalitet
-            "Reset garage from config file",
+            "Reset garage from config file (restart of application needed and lost of vehicles)",
+            "Apply config changes (with no reset of application and keep all vehicles)",
             "Exit"
         };
 
@@ -90,11 +92,11 @@ namespace Prague_Parking_V2
                             _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har flyttats
                         }
                         break;
-                    case "Reset garage from config file":
+                    case "Reset garage from config file (restart of application needed and lost of vehicles)":
                         var cfgStorage = new ConfigFiles("../../../configData.json"); // Skapar en instans av ConfigFiles med angiven sökväg
                         var configDto = cfgStorage.LoadOrDefault(); // Laddar konfigurationsdata från filen eller standardkonfigurationen
 
-                        var confirmReset = AnsiConsole.Confirm("Are you sure you want to reset the garage? This will remove all parked vehicles and update all values from the config file.");
+                        var confirmReset = AnsiConsole.Confirm("Are you sure you want to reset the garage? The garage will be renovated. This will remove all parked vehicles and update all values from the config file.");
                         if (confirmReset)
                         {
                             _garage = new ParkingGarage(_config.DefaultSpaceCount, _config.DefaultSpaceCapacityUnits);
@@ -106,6 +108,47 @@ namespace Prague_Parking_V2
                         else
                         {
                             AnsiConsole.MarkupLine("[yellow]Garage reset cancelled.[/]");
+                        }
+                        break;
+                    case "Apply config changes (with no reset of application and keep all vehicles)":
+                        {
+                            var configPath = Path.Combine(AppContext.BaseDirectory, "../../../configData.json");
+                            var json = File.ReadAllText(configPath);
+                            var opts = new JsonSerializerOptions
+                            {
+                                AllowTrailingCommas = true,
+                                ReadCommentHandling = JsonCommentHandling.Skip,
+                                PropertyNameCaseInsensitive = true
+                            };
+                            var newCfg = JsonSerializer.Deserialize<ConfigApp>(json, opts)
+                                       ?? throw new InvalidOperationException("Failed to read config.");
+
+                            int newSpaceCount = newCfg.DefaultSpaceCount;
+                            int newSpaceCapacity = newCfg.DefaultSpaceCapacityUnits;
+
+                            AnsiConsole.MarkupLine("[bold] Config changes preview: [/]");
+                            AnsiConsole.MarkupLine($"Current space count: {_config.DefaultSpaceCount}, New space count: {newSpaceCount}");
+                            AnsiConsole.MarkupLine($"Current space capacity units: {_config.DefaultSpaceCapacityUnits}, New space capacity units: {newSpaceCapacity}");
+                            AnsiConsole.MarkupLine("[yellow] Applying config changes will attempt to resize parking spaces without removing existing vehicles. If the new configuration cannot accommodate the currently parked vehicles, the operation will fail and no changes will be made. [/]");
+                            AnsiConsole.WriteLine();
+                            var confirmApply = AnsiConsole.Confirm("Do you want to apply these config changes?");
+                            if (!confirmApply)
+                            {
+                                AnsiConsole.MarkupLine("[yellow]Config changes application cancelled.[/]");
+                                Pause();
+                                break;
+                            }
+                            if (_garage.TryResizeSpace(newSpaceCount, newSpaceCapacity, out var error))
+                            {
+                                _config = newCfg; // <- uppdatera aktiv config i minnet
+                                _storage.Save(Mapper.ToDto(_garage));
+                                AnsiConsole.MarkupLine("[green]Applied config without reset. All vehicles kept.[/]");
+                            }
+                            else
+                            {
+                                AnsiConsole.MarkupLine($"[red]Failed to apply config: {error}[/]");
+                            }
+                            Pause();  
                         }
                         break;
                     case "Exit":

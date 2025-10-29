@@ -30,6 +30,20 @@ namespace Prague_Parking_V2
         }
 
         // METODER
+        public void SetCapacity(int newCapacity)
+        {
+            if (newCapacity <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(newCapacity), "Capacity must be greater than zero.");
+            }
+            var usedSpaces = _vehicles.Sum(vehicle => vehicle.Size);
+            if (usedSpaces > newCapacity)
+            {
+                throw new InvalidOperationException("Cannot set capacity lower than the currently used spaces.");
+            }
+            CapacitySpaces = newCapacity;
+        }
+
         public bool CanVehicleFit(Vehicle vehicle)
             => _vehicles.Sum(x => x.Size) + vehicle.Size <= CapacitySpaces;
 

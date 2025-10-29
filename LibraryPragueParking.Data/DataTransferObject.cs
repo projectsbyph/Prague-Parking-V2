@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace LibraryPragueParking.Data
 {
-    public class DTO
+    public class ParkingGarageDto 
     {
         //Här ned finns allt som behövs för att serialisera och deserialisera ParkingGarage objektet till och från JSON format.
         public class GarageDto
         {
             public int SpaceCapacityUnits { get; set; }
             public int SpaceCount { get; set; }
-            public List<SpaceDto> Spaces { get; set; } = new();
+            public List<SpaceDto> Spaces { get; set; } = new(); //Lista över parkeringsplatser i garaget, new () initierar en tom lista vid skapandet av objektet.
         }
         
         public class SpaceDto //Denna klass representerar en parkeringsplats och dess egenskaper för serialisering.

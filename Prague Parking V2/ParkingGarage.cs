@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace Prague_Parking_V2
 
             for (int i = 0; i < spaceCount; i++)
             {
-                ParkingSpaces.Add(new ParkingSpace(i+1, spaceCapacityUnits)); // Skapa och lägg till parkeringsplatser i garaget
+                ParkingSpaces.Add(new ParkingSpace(i + 1, spaceCapacityUnits)); // Skapa och lägg till parkeringsplatser i garaget
             }
         }
 
@@ -91,6 +92,7 @@ namespace Prague_Parking_V2
             return null; // Vehicle not found
         }
 
+        // FLYTTA FORDON
         public bool MoveVehicle(string fixedRegNumber, int targetSpaceIndex, out int fromSpaceIndex, out string? error) // Flytta ett fordon till en annan parkeringsplats
         {
             error = null; // Initialisera felmeddelandet som null
@@ -160,5 +162,49 @@ namespace Prague_Parking_V2
             return true;*/
         }
 
+        public bool TryResizeSpace(int newSpaceCount, int newSpaceCapacity, out string? error) // Försök att ändra storleken på en parkeringsplats
+
+        {
+            if (newSpaceCount <= 0)
+            {
+                error = "New space count must be greater than zero.";
+                return false; // Det nya antalet platser måste vara större än noll
+            }
+            if (newSpaceCapacity <= 0)
+            {
+                error = "New capacity per space must be greater than zero.";
+                return false; // Den nya kapaciteten per plats måste vara större än noll
+            }
+
+            foreach (var space in ParkingSpaces)
+            {
+                var usedSpaces = space.Vehicles.Sum(vehicle => vehicle.Size);
+                if (usedSpaces > newSpaceCapacity)
+                {
+                    error = $"Cannot resize space {space.Index} to {newSpaceCapacity} units because it currently has {usedSpaces} units used.";
+                    return false; // Kan inte ändra storleken på platsen eftersom den för närvarande har mer använda enheter än den nya kapaciteten
+                }
+            }
+
+            foreach (var space in ParkingSpaces)
+            {
+                space.SetCapacity(newSpaceCapacity);
+            }
+
+            int currentSpaceCount = ParkingSpaces.Count;
+            if (newSpaceCount > currentSpaceCount)
+            {
+                for (int i = currentSpaceCount; i < newSpaceCount; i++)
+                {
+                    ParkingSpaces.Add(new ParkingSpace(i + 1, newSpaceCapacity)); // Lägg till nya parkeringsplatser
+                }
+            }
+            else if (newSpaceCount < currentSpaceCount)
+            {
+                ParkingSpaces.RemoveRange(newSpaceCount, currentSpaceCount - newSpaceCount); // Ta bort överflödiga parkeringsplatser
+            }
+            error = null;
+            return true;
+        }
     }
 }

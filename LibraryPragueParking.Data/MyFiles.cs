@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using static LibraryPragueParking.Data.DTO;
+using static LibraryPragueParking.Data.ParkingGarageDto;
 
 
 namespace LibraryPragueParking.Data

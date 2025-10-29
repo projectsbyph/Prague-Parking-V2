@@ -1,6 +1,6 @@
 {
   "SpaceCapacityUnits": 4,
-  "SpaceCount": 100,
+  "SpaceCount": 130,
   "Spaces": [
     {
       "Index": 1,
@@ -8,7 +8,7 @@
         {
           "Type": "Car",
           "LicensePlate": "ABC123",
-          "ParkedAtUtc": "2025-10-28T10:41:39.6837148Z"
+          "ParkedAtUtc": "2025-10-29T12:01:23.9299536Z"
         }
       ]
     },
@@ -406,6 +406,126 @@
     },
     {
       "Index": 100,
+      "Vehicle": []
+    },
+    {
+      "Index": 101,
+      "Vehicle": []
+    },
+    {
+      "Index": 102,
+      "Vehicle": []
+    },
+    {
+      "Index": 103,
+      "Vehicle": []
+    },
+    {
+      "Index": 104,
+      "Vehicle": []
+    },
+    {
+      "Index": 105,
+      "Vehicle": []
+    },
+    {
+      "Index": 106,
+      "Vehicle": []
+    },
+    {
+      "Index": 107,
+      "Vehicle": []
+    },
+    {
+      "Index": 108,
+      "Vehicle": []
+    },
+    {
+      "Index": 109,
+      "Vehicle": []
+    },
+    {
+      "Index": 110,
+      "Vehicle": []
+    },
+    {
+      "Index": 111,
+      "Vehicle": []
+    },
+    {
+      "Index": 112,
+      "Vehicle": []
+    },
+    {
+      "Index": 113,
+      "Vehicle": []
+    },
+    {
+      "Index": 114,
+      "Vehicle": []
+    },
+    {
+      "Index": 115,
+      "Vehicle": []
+    },
+    {
+      "Index": 116,
+      "Vehicle": []
+    },
+    {
+      "Index": 117,
+      "Vehicle": []
+    },
+    {
+      "Index": 118,
+      "Vehicle": []
+    },
+    {
+      "Index": 119,
+      "Vehicle": []
+    },
+    {
+      "Index": 120,
+      "Vehicle": []
+    },
+    {
+      "Index": 121,
+      "Vehicle": []
+    },
+    {
+      "Index": 122,
+      "Vehicle": []
+    },
+    {
+      "Index": 123,
+      "Vehicle": []
+    },
+    {
+      "Index": 124,
+      "Vehicle": []
+    },
+    {
+      "Index": 125,
+      "Vehicle": []
+    },
+    {
+      "Index": 126,
+      "Vehicle": []
+    },
+    {
+      "Index": 127,
+      "Vehicle": []
+    },
+    {
+      "Index": 128,
+      "Vehicle": []
+    },
+    {
+      "Index": 129,
+      "Vehicle": []
+    },
+    {
+      "Index": 130,
       "Vehicle": []
     }
   ]

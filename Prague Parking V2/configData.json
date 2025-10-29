@@ -1,6 +1,6 @@
 {
-	"DefaultSpaceCount": 100,
-	"DefaultSpaceCapacityUnits": 4,
+	"DefaultSpaceCount": 130,
+	"DefaultSpaceCapacityUnits": 2,
 	"FreeMinutesBeforeCharge": 10,
 	"VehicleTypes": [
 		{

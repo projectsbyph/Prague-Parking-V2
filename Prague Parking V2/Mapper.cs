@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static LibraryPragueParking.Data.DTO;
+using static LibraryPragueParking.Data.ParkingGarageDto;
 
 namespace Prague_Parking_V2
 {
