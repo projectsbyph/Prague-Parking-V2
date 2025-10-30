@@ -30,7 +30,7 @@ namespace Prague_Parking_V2
         }
 
         // METODER
-        public void SetCapacity(int newCapacity)
+        public void SetCapacity(int newCapacity) // Ändra kapaciteten för parkeringsplatsen
         {
             if (newCapacity <= 0)
             {
@@ -44,10 +44,10 @@ namespace Prague_Parking_V2
             CapacitySpaces = newCapacity;
         }
 
-        public bool CanVehicleFit(Vehicle vehicle)
+        public bool CanVehicleFit(Vehicle vehicle) // Kontrollera om fordonet får plats i denna parkeringsplats
             => _vehicles.Sum(x => x.Size) + vehicle.Size <= CapacitySpaces;
 
-        public void ParkVehicle(Vehicle vehicle)
+        public void ParkVehicle(Vehicle vehicle) // Parkera ett fordon i denna parkeringsplats
         {
             if (!CanVehicleFit(vehicle))
             {
@@ -57,8 +57,8 @@ namespace Prague_Parking_V2
             _vehicles.Add(vehicle);
         }
 
-        // WRAPPER METOD FÖR ATT TA BORT FORDON
-        public bool RemoveVehicle(string fixedRegNumber)
+ 
+        public bool RemoveVehicle(string fixedRegNumber) // Ta bort ett fordon från denna parkeringsplats baserat på registreringsnumret
         {
             var i = _vehicles.FindIndex(vehicle => vehicle.LicensePlate == fixedRegNumber); // Hitta indexet för fordonet med det angivna registreringsnumret
             if (i >= 0)
@@ -72,7 +72,7 @@ namespace Prague_Parking_V2
             return i >= 0; // Returnerar true om fordonet togs bort, annars false
         }
 
-        public void AddLoadedVehicle(Vehicle vehicle)
+        public void AddLoadedVehicle(Vehicle vehicle) // Lägg till ett fordon som redan är parkerat (används vid inläsning från sparfil)
         {
             _vehicles.Add(vehicle);
         }

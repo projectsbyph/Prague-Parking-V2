@@ -18,6 +18,7 @@ namespace Prague_Parking_V2
 {
     public static class Menu // Meny klass för att hantera användarinteraktion och val i konsolen (UI)
                              //Kommentarer kommer att vara på svenska och kod på engelska
+                             // Jag har pluggat tillsammans med Noah och Hannes vid utförandet av denna inlämning
     {
         // FÖR JSON LAGRING
         private static ParkingGarage _garage = null!;
@@ -40,8 +41,8 @@ namespace Prague_Parking_V2
             "Remove a vehicle",
             "List parked vehicles",
             "Find a vehicle",
-            "Move vehicle to another spot", // Framtida funktionalitet
-            "Reset garage from config file (restart of application needed and lost of vehicles)",
+            "Move vehicle to another spot",
+            "Create new garage from config (restart of application needed)",
             "Apply config changes (with no reset of application and keep all vehicles)",
             "Exit"
         };
@@ -92,9 +93,9 @@ namespace Prague_Parking_V2
                             _storage.Save(Mapper.ToDto(_garage)); // Spara garagets tillstånd efter att ett fordon har flyttats
                         }
                         break;
-                    case "Reset garage from config file (restart of application needed and lost of vehicles)":
-                        var cfgStorage = new ConfigFiles("../../../configData.json"); // Skapar en instans av ConfigFiles med angiven sökväg
-                        var configDto = cfgStorage.LoadOrDefault(); // Laddar konfigurationsdata från filen eller standardkonfigurationen
+                    case "Create new garage from config (restart of application needed)":
+                        var configStorage = new ConfigFiles("../../../configData.json"); // Skapar en instans av ConfigFiles med angiven sökväg
+                        var configDto = configStorage.LoadOrDefault(); // Laddar konfigurationsdata från filen eller standardkonfigurationen
 
                         var confirmReset = AnsiConsole.Confirm("Are you sure you want to reset the garage? The garage will be renovated. This will remove all parked vehicles and update all values from the config file.");
                         if (confirmReset)
@@ -110,37 +111,37 @@ namespace Prague_Parking_V2
                             AnsiConsole.MarkupLine("[yellow]Garage reset cancelled.[/]");
                         }
                         break;
-                    case "Apply config changes (with no reset of application and keep all vehicles)":
+                    case "Apply config changes (with no reset of application and keep all vehicles)": 
                         {
-                            var configPath = Path.Combine(AppContext.BaseDirectory, "../../../configData.json");
+                            var configPath = Path.Combine(AppContext.BaseDirectory, "../../../configData.json"); // Sökväg till konfigurationsfilen
                             var json = File.ReadAllText(configPath);
-                            var opts = new JsonSerializerOptions
+                            var options = new JsonSerializerOptions
                             {
                                 AllowTrailingCommas = true,
-                                ReadCommentHandling = JsonCommentHandling.Skip,
+                                ReadCommentHandling = JsonCommentHandling.Skip, // Ignorera kommentarer i JSON-filen
                                 PropertyNameCaseInsensitive = true
                             };
-                            var newCfg = JsonSerializer.Deserialize<ConfigApp>(json, opts)
-                                       ?? throw new InvalidOperationException("Failed to read config.");
+                            var newConfig = JsonSerializer.Deserialize<ConfigApp>(json, options)
+                                       ?? throw new InvalidOperationException("Failed to read config.");  // Deserialisera JSON till ConfigApp-objekt
 
-                            int newSpaceCount = newCfg.DefaultSpaceCount;
-                            int newSpaceCapacity = newCfg.DefaultSpaceCapacityUnits;
+                            int newSpaceCount = newConfig.DefaultSpaceCount;
+                            int newSpaceCapacity = newConfig.DefaultSpaceCapacityUnits;
 
                             AnsiConsole.MarkupLine("[bold] Config changes preview: [/]");
-                            AnsiConsole.MarkupLine($"Current space count: {_config.DefaultSpaceCount}, New space count: {newSpaceCount}");
+                            AnsiConsole.MarkupLine($"Current space count: {_config.DefaultSpaceCount}, New space count: {newSpaceCount}"); // Visa nuvarande och nya värden för parkeringsplatser
                             AnsiConsole.MarkupLine($"Current space capacity units: {_config.DefaultSpaceCapacityUnits}, New space capacity units: {newSpaceCapacity}");
                             AnsiConsole.MarkupLine("[yellow] Applying config changes will attempt to resize parking spaces without removing existing vehicles. If the new configuration cannot accommodate the currently parked vehicles, the operation will fail and no changes will be made. [/]");
                             AnsiConsole.WriteLine();
                             var confirmApply = AnsiConsole.Confirm("Do you want to apply these config changes?");
-                            if (!confirmApply)
+                            if (!confirmApply) // Användaren avbryter ändringen
                             {
                                 AnsiConsole.MarkupLine("[yellow]Config changes application cancelled.[/]");
                                 Pause();
                                 break;
                             }
-                            if (_garage.TryResizeSpace(newSpaceCount, newSpaceCapacity, out var error))
+                            if (_garage.TryResizeSpace(newSpaceCount, newSpaceCapacity, out var error)) // Försök att ändra storlek på parkeringsplatserna utan att ta bort fordon
                             {
-                                _config = newCfg; // <- uppdatera aktiv config i minnet
+                                _config = newConfig; // <- uppdatera aktiv config i minnet
                                 _storage.Save(Mapper.ToDto(_garage));
                                 AnsiConsole.MarkupLine("[green]Applied config without reset. All vehicles kept.[/]");
                             }
@@ -181,7 +182,7 @@ namespace Prague_Parking_V2
                 return;
             }
 
-            // nedan sker UI validering (format) och modellen validerar igen i konstruktorn
+            // Nedan sker UI validering (format) och modellen validerar igen i konstruktorn
             var regNumber = AnsiConsole.Prompt(
                 new TextPrompt<string>("Registration number:")
                 .Validate(stringReg =>
@@ -228,15 +229,15 @@ namespace Prague_Parking_V2
             }
 
             Pause();
-            // Fortsätt med nästa metod nedan
         }
 
-        private static double GetRate(string type) =>
+        // HJÄLPMETODER FÖR ATT HÄMTA AVGIFT OCH SPECIFIKATIONER
+        private static double GetRate(string type) => // Hämta avgift per timme baserat på fordonstyp
             (double)_config.VehicleTypes
             .First(vehicle => vehicle.Type.Equals(type, StringComparison.OrdinalIgnoreCase))
             .ChargePerHour;
 
-        private static VehicleSpec GetSpec(string type) =>
+        private static VehicleSpec GetSpec(string type) => // Hämta fordonsspecifikationer baserat på fordonstyp
            _config.VehicleTypes
            .First(vehicle => vehicle.Type.Equals(type, StringComparison.OrdinalIgnoreCase));
 
@@ -289,7 +290,7 @@ namespace Prague_Parking_V2
                 new SelectionPrompt<string>()
                 .Title("Confirm payment and remove vehicle?")
                 .AddChoices("Yes", "No"));
-            if (confirm == "No")
+            if (confirm == "No") // Användaren avbryter borttagningen
             {
                 AnsiConsole.MarkupLine("[yellow]Payment cancelled. Vehicle not removed.[/]");
                 Pause();
@@ -319,7 +320,7 @@ namespace Prague_Parking_V2
             foreach (var space in _garage.ParkingSpaces) // Loopar igenom alla parkeringsplatser i garaget
             {
                 // Lägger till varje parkerat fordon i listan med dess platsnummer och separerar dem
-                var usedSpaceUnits = space.Vehicles.Sum(v => v.Size); // Beräknar det använda utrymmet i parkeringsplatsen
+                var usedSpaceUnits = space.Vehicles.Sum(vehicle => vehicle.Size); // Beräknar det använda utrymmet i parkeringsplatsen
                 var header = $"[yellow]Parking Spot {space.Index}[/] - Used: {usedSpaceUnits}/{space.CapacitySpaces} units"; // Skapar en rubrik för parkeringsplatsen med dess index och använda kapacitet
                 var rule = new Rule(header) { Justification = Justify.Left }; // Skapar en regel med rubriken
                 AnsiConsole.Write(rule); // Visar regeln i konsolen
@@ -342,13 +343,13 @@ namespace Prague_Parking_V2
                 table.AddColumn("Parked at");
 
                 // Lägger till rader i tabellen för varje parkerat fordon
-                foreach (var v in space.Vehicles)
+                foreach (var vehicle in space.Vehicles)
                 {
                     table.AddRow(
-                        v.Size.ToString(), // Använda utrymmes enheter
-                        v.LicensePlate, // Registreringsnummer
-                        v.GetType().Name, // Fordonstyp
-                        v.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm")); // Tidpunkt när fordonet parkerades
+                        vehicle.Size.ToString(), // Använda utrymmes enheter
+                        vehicle.LicensePlate, // Registreringsnummer
+                        vehicle.GetType().Name, // Fordonstyp
+                        vehicle.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm")); // Tidpunkt när fordonet parkerades
                 }
                 AnsiConsole.Write(table); // Visar tabellen i konsolen
             }
@@ -382,7 +383,7 @@ namespace Prague_Parking_V2
             var regNumber = AnsiConsole.Prompt(new TextPrompt<string>("Enter the registration number of the vehicle to move: ")
                 .Validate(stringReg =>
                 {
-                    if (string.IsNullOrWhiteSpace(stringReg))
+                    if (string.IsNullOrWhiteSpace(stringReg)) // Kontrollera om inmatningen är tom eller endast innehåller blanksteg
                         return ConsoleValidationResult.Error("[red]Registration number can not be left empty[/]");
                     var normal = Vehicle.FixReg(stringReg);
                     return Vehicle.RegIsValid(normal)
@@ -390,7 +391,7 @@ namespace Prague_Parking_V2
                                 : ConsoleValidationResult.Error("[red]Input a valid format[/]");
                 }));
 
-            var maxIndex = _garage.ParkingSpaces.Count;
+            var maxIndex = _garage.ParkingSpaces.Count; // Hämta det maximala indexet för parkeringsplatser
             var targetSpot = AnsiConsole.Prompt(
                 new TextPrompt<int>($"Enter to which spot you want to move the vehicle " +
                 $"(0 to {maxIndex}): ")

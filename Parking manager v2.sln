@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prague Parking V2", "Prague Parking V2\Prague Parking V2.csproj", "{9ADA74E8-EC30-4CC7-ABC5-B8D8AACDB153}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjectPragueParking", "TestProjectPragueParking\TestProjectPragueParking.csproj", "{EEAD619A-967F-4236-B6A4-98A422E1560F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PragueParkingV2.tests", "TestProjectPragueParking\PragueParkingV2.tests.csproj", "{EEAD619A-967F-4236-B6A4-98A422E1560F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryPragueParking.Data", "LibraryPragueParking.Data\LibraryPragueParking.Data.csproj", "{D91C1FED-388E-4465-9C43-33849CAD016E}"
 EndProject

@@ -12,11 +12,11 @@ namespace Prague_Parking_V2
     public abstract class Vehicle
     {
         //EGENSKAPER
-        public string LicensePlate { get; }
-        public DateTime TimeParked { get; protected set; }
-        public int Size { get; set; }
-        public decimal HourlyRate { get; private set; }
-        public string Type { get; set; }
+        public string LicensePlate { get; } // Registreringsnummer
+        public DateTime TimeParked { get; protected set; } // Tidpunkt när fordonet parkerades (i UTC)
+        public int Size { get; set; } // Storlek i enheter (t.ex. bil = 4, mc = 2)
+        public decimal HourlyRate { get; private set; } // Timpris för parkering
+        public string Type { get; set; } // Typ av fordon (t.ex. "Car", "Mc")
 
 
         //KONSTRUKTOR
@@ -48,7 +48,7 @@ namespace Prague_Parking_V2
 
         public static bool RegIsValid(string regNumber) // Kontrollera om registreringsnumret är giltigt
         {
-            if (regNumber.Length > 10)
+            if (regNumber.Length > 10) // Max 10 tecken
             {
                 Console.Clear();
                 AnsiConsole.MarkupLine("[red]Your license plate cannot contain more than 10 characters![/]\n");
@@ -57,7 +57,7 @@ namespace Prague_Parking_V2
                 Console.Clear();
                 return false;
             }
-            if (regNumber.Length == 0)
+            if (regNumber.Length == 0) // Minst 1 tecken
             {
                 Console.Clear();
                 AnsiConsole.MarkupLine("[red]You must enter a license plate number![/]\n");
@@ -66,7 +66,7 @@ namespace Prague_Parking_V2
                 Console.Clear();
                 return false;
             }
-            if (regNumber.Any(char.IsWhiteSpace))
+            if (regNumber.Any(char.IsWhiteSpace)) // Inga mellanslag tillåtna
             {
                 Console.Clear();
                 AnsiConsole.MarkupLine("[red]Your license plate cannot contain spaces![/]\n");
@@ -98,12 +98,12 @@ namespace Prague_Parking_V2
         }
 
         //METODER (Hjälpare för att spara och ladda fordonets parkerings tidpunkt)
-        public void RestoreParkedAtUtc(DateTime parkedAtUtc)
+        public void RestoreParkedAtUtc(DateTime parkedAtUtc) // Återställ parkerad tidpunkt från sparad UTC tid
         {
             TimeParked = DateTime.SpecifyKind(parkedAtUtc, DateTimeKind.Utc);
         }
 
-        public void MarkParkedNow()
+        public void MarkParkedNow() // Sätt parkerad tidpunkt till nuvarande UTC tid
         {
             TimeParked = DateTime.UtcNow;
         }

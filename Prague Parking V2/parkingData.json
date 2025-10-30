@@ -24,7 +24,13 @@
     },
     {
       "Index": 3,
-      "Vehicle": []
+      "Vehicle": [
+        {
+          "Type": "Car",
+          "LicensePlate": "ERT345",
+          "ParkedAtUtc": "2025-10-30T16:42:30.9731211Z"
+        }
+      ]
     },
     {
       "Index": 4,

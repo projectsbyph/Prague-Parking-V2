@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Prague_Parking_V2
 {
-    public sealed class VehicleSpec
+    public sealed class VehicleSpec // Definition av fordonsspecifikation
     {
         public string Type { get; set; } = "";
         public int CapacityUnits { get; set; }
         public decimal ChargePerHour { get; set; }
     }
 
-    public class ConfigApp
+    public class ConfigApp // Applikationskonfiguration
     {
         public int DefaultSpaceCount { get; set; }
         public int DefaultSpaceCapacityUnits { get; set; }

@@ -2,10 +2,10 @@
 namespace Prague_Parking_V2
 {
     [TestClass]
-    public sealed class SpaceTest
+    public sealed class SpaceTests
     {
         [TestMethod]
-        public void Car_Fits_When_Capacity_Is_4()
+        public void Car_Fits_When_Space_Capacity_Is_Set_To_4()
         {
             var space = new ParkingSpace(index: 1, capacitySpaces: 4);
             var car = new Car("ABC123");
@@ -17,7 +17,7 @@ namespace Prague_Parking_V2
         }
 
         [TestMethod]
-        public void Mc_Doesnt_Fit_When_Space_Full()
+        public void Mc_Doesnt_Fit_When_Space_Is_Full()
         {
             var space = new ParkingSpace(index: 1, capacitySpaces: 4);
             var mc1 = new Mc("MC111"); mc1.ApplySpec(10m, 2);

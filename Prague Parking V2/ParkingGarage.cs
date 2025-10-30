@@ -11,6 +11,7 @@ namespace Prague_Parking_V2
 {
     public class ParkingGarage
     {
+        // EGENSKAPER
         public List<ParkingSpace> ParkingSpaces { get; } = new(); // Lista över parkeringsplatser
         public IReadOnlyList<ParkingSpace> Spaces => ParkingSpaces; // Exponerar parkeringsplatserna som en read-only lista
 
@@ -44,9 +45,9 @@ namespace Prague_Parking_V2
                 }
             }
 
-            foreach (var space in ParkingSpaces)
+            foreach (var space in ParkingSpaces) // Försök att hitta en parkeringsplats där fordonet får plats
             {
-                if (space.CanVehicleFit(vehicle))
+                if (space.CanVehicleFit(vehicle)) // Kontrollera om fordonet får plats i parkeringsplatsen
                 {
                     space.ParkVehicle(vehicle);
                     spaceIndex = space.Index;
@@ -61,10 +62,10 @@ namespace Prague_Parking_V2
         public bool TryRemoveVehicle(string fixedRegNumber, out Vehicle? removedVehicle) // Försök att ta bort ett fordon från garaget
         {
             var regNumber = Vehicle.FixReg(fixedRegNumber);
-            foreach (var space in ParkingSpaces)
+            foreach (var space in ParkingSpaces) // Loopar igenom varje parkeringsplats
             {
                 var vehicle = space.Vehicles.FirstOrDefault(v => v.LicensePlate == regNumber);
-                if (vehicle != null && space.RemoveVehicle(regNumber))
+                if (vehicle != null && space.RemoveVehicle(regNumber)) // Om fordonet hittas och tas bort
                 {
                     removedVehicle = vehicle;
                     return true;
@@ -79,9 +80,9 @@ namespace Prague_Parking_V2
         {
             var regNumber = Vehicle.FixReg(fixedRegNumber);
 
-            foreach (var space in ParkingSpaces)
+            foreach (var space in ParkingSpaces) // Loopar igenom varje parkeringsplats
             {
-                var vehicle = space.Vehicles.FirstOrDefault(vehicle => vehicle.LicensePlate == regNumber);
+                var vehicle = space.Vehicles.FirstOrDefault(vehicle => vehicle.LicensePlate == regNumber); // Hitta fordonet med det angivna registreringsnumret
                 if (vehicle != null)
                 {
                     spaceIndex = space.Index;
@@ -114,7 +115,7 @@ namespace Prague_Parking_V2
                 }
             }
 
-            if (vehicleToMove == null || currentSpace == null)
+            if (vehicleToMove == null || currentSpace == null) 
             {
                 error = "Vehicle not found in the garage.";
                 return false; // Fordonet hittades inte
@@ -156,12 +157,9 @@ namespace Prague_Parking_V2
                 error = "Failed to remove the vehicle from its current parking space.";
                 return false; // Misslyckades med att ta bort fordonet från dess nuvarande parkeringsplats
             }
-
-            /*Flyttar utan att ändra parkerings tid
-            targetSpace.AddLoadedVehicle(vehicleToMove);
-            return true;*/
         }
 
+        // ÄNDRA STORLEK PÅ PARKERINGSPLATS
         public bool TryResizeSpace(int newSpaceCount, int newSpaceCapacity, out string? error) // Försök att ändra storleken på en parkeringsplats
         {
             if (newSpaceCount <= 0)
@@ -175,7 +173,7 @@ namespace Prague_Parking_V2
                 return false; // Den nya kapaciteten per plats måste vara större än noll
             }
 
-            foreach (var space in ParkingSpaces)
+            foreach (var space in ParkingSpaces) // Kontrollera om någon parkeringsplats har mer använda enheter än den nya kapaciteten
             {
                 var usedSpaces = space.Vehicles.Sum(vehicle => vehicle.Size);
                 if (usedSpaces > newSpaceCapacity)
@@ -185,20 +183,20 @@ namespace Prague_Parking_V2
                 }
             }
 
-            foreach (var space in ParkingSpaces)
+            foreach (var space in ParkingSpaces) // Uppdatera kapaciteten för varje parkeringsplats
             {
                 space.SetCapacity(newSpaceCapacity);
             }
 
             int currentSpaceCount = ParkingSpaces.Count;
-            if (newSpaceCount > currentSpaceCount)
+            if (newSpaceCount > currentSpaceCount) // Om det nya antalet platser är större än det nuvarande antalet platser
             {
                 for (int i = currentSpaceCount; i < newSpaceCount; i++)
                 {
                     ParkingSpaces.Add(new ParkingSpace(i + 1, newSpaceCapacity)); // Lägg till nya parkeringsplatser
                 }
             }
-            else if (newSpaceCount < currentSpaceCount)
+            else if (newSpaceCount < currentSpaceCount) // Om det nya antalet platser är mindre än det nuvarande antalet platser
             {
                 for (int i = newSpaceCount; i < currentSpaceCount; i++)
                 {
