@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LibraryPragueParking.Data
+namespace PragueParkingV2.Data
 {
     public class ParkingGarageDto 
     {

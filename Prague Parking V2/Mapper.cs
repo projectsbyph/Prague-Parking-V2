@@ -1,10 +1,10 @@
-﻿using LibraryPragueParking.Data;
+﻿using PragueParkingV2.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static LibraryPragueParking.Data.ParkingGarageDto;
+using static PragueParkingV2.Data.ParkingGarageDto;
 
 namespace Prague_Parking_V2
 {

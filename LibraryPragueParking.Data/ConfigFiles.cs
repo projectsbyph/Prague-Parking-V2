@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Markup;
 
-namespace LibraryPragueParking.Data
+namespace PragueParkingV2.Data
 {
     
 

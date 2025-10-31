@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using static LibraryPragueParking.Data.ParkingGarageDto;
+using static PragueParkingV2.Data.ParkingGarageDto;
 
 
-namespace LibraryPragueParking.Data
+namespace PragueParkingV2.Data
 {
     public class MyFiles //Hanterar filoperationer för att ladda och spara ParkingGarage data i JSON format.
     {

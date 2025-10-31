@@ -1,4 +1,4 @@
-﻿using LibraryPragueParking.Data;
+﻿using PragueParkingV2.Data;
 using Prague_Parking_V2;
 using Spectre.Console;
 using Spectre.Console.Rendering;
@@ -16,9 +16,11 @@ using ConsoleValidationResult = Spectre.Console.ValidationResult;
 
 namespace Prague_Parking_V2
 {
-    public static class Menu // Meny klass för att hantera användarinteraktion och val i konsolen (UI)
-                             //Kommentarer kommer att vara på svenska och kod på engelska
-                             // Jag har pluggat tillsammans med Noah och Hannes vid utförandet av denna inlämning
+    // Kommentarer kommer att vara på svenska och kod på engelska
+    // Jag har pluggat tillsammans med Noah och Hannes vid utförandet av denna inlämning
+
+    // HUVUDKLASS FÖR MENYN
+    public static class Menu 
     {
         // FÖR JSON LAGRING
         private static ParkingGarage _garage = null!;
@@ -209,7 +211,7 @@ namespace Prague_Parking_V2
                 vehicle = type == "Car" ? new Car(regNumber) // Om användaren valde "Car", skapa en Car-instans
                     : new Mc(regNumber); // Annars skapa en Motorcycle-instans
                 var spec = GetSpec(type);
-                vehicle.ApplySpec(spec.ChargePerHour, spec.CapacityUnits); // Applicera fordonsspecifikationer från config
+                vehicle.ApplySpec(spec.ChargePerHour, spec.CapacityUnits); // Här hämtas fordonsspecifikationer från config och appliceras på fordonet!!
             }
             catch (Exception exception) // Fångar eventuella undantag vid skapandet av fordonet
             {

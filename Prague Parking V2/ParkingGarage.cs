@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Prague_Parking_V2
 {
+    // Parkiringsgarage-klass som hanterar parkeringsplatser och fordon
     public class ParkingGarage
     {
         // EGENSKAPER

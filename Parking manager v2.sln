@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prague Parking V2", "Prague
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PragueParkingV2.tests", "TestProjectPragueParking\PragueParkingV2.tests.csproj", "{EEAD619A-967F-4236-B6A4-98A422E1560F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryPragueParking.Data", "LibraryPragueParking.Data\LibraryPragueParking.Data.csproj", "{D91C1FED-388E-4465-9C43-33849CAD016E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PragueParking.Data", "LibraryPragueParking.Data\PragueParking.Data.csproj", "{D91C1FED-388E-4465-9C43-33849CAD016E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
