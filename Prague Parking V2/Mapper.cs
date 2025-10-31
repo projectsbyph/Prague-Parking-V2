@@ -8,7 +8,7 @@ using static PragueParkingV2.Data.ParkingGarageDto;
 
 namespace Prague_Parking_V2
 {
-    internal class Mapper 
+    internal class Mapper // Klass för att mappa mellan domänmodeller och DTOs
     {
         public static GarageDto ToDto(ParkingGarage garage) // Konverterar ett ParkingGarage objekt till dess motsvarande GarageDto representation för serialisering.
         {

@@ -10,7 +10,7 @@ using PragueParkingV2.Data;
 namespace TestProjectPragueParking
 {
     [TestClass]
-    public class CalculateFeeTests
+    public class CalculateFeeTests // Testklass för att testa beräkning av parkeringsavgift
     {
         [TestInitialize]
         public void InitMenuConfig() // Initierar meny och konfiguration för testerna
@@ -63,7 +63,7 @@ namespace TestProjectPragueParking
             };
             var fee = Menu.CalculateParkingFee(car, DateTime.UtcNow, config, out var total);
             
-            Assert.AreEqual(20m, fee, "55 minutes of billable time should be rounded up to 1 hour at 20m intervals."); // 2 hours rounded up
+            Assert.AreEqual(20m, fee, "55 minutes of billable time should be rounded up to 1 hour at 20m intervals."); 
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace TestProjectPragueParking
                 FreeMinutesBeforeCharge = 10
             };
             var fee = Menu.CalculateParkingFee(car, DateTime.UtcNow, config, out var total);
-            Assert.AreEqual(40m, fee, "111 min chargeable should be rounded up to 2 h á 20m = 40m"); // 3 hours rounded up
+            Assert.AreEqual(40m, fee, "111 min chargeable should be rounded up to 2 h á 20m = 40m");
         }
     }
 }

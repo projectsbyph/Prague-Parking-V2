@@ -56,7 +56,7 @@ namespace Prague_Parking_V2
                 }
             }
             spaceIndex = -1;
-            return false; // No available space found 
+            return false; // Inga parkeringsplatser har tillräckligt med utrymme för fordonet
         }
 
         // TA BORT FORDON
@@ -91,7 +91,7 @@ namespace Prague_Parking_V2
                 }
             }
             spaceIndex = -1;
-            return null; // Vehicle not found
+            return null; // Fordonet hittades inte
         }
 
         // FLYTTA FORDON

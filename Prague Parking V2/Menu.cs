@@ -149,7 +149,7 @@ namespace Prague_Parking_V2
                             }
                             if (_garage.TryResizeSpace(newSpaceCount, newSpaceCapacity, out var error)) // Försök att ändra storlek på parkeringsplatserna utan att ta bort fordon
                             {
-                                _config = newConfig; // <- uppdatera aktiv config i minnet
+                                _config = newConfig; // Uppdatera den aktuella konfigurationen
                                 _storage.Save(Mapper.ToDto(_garage));
                                 AnsiConsole.MarkupLine("[green]Applied config without reset. All vehicles kept.[/]");
                             }

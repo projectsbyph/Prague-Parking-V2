@@ -12,6 +12,7 @@ namespace Prague_Parking_V2
     /// <remarks>
     /// Egenskaperna Size (storlek) och HourlyRate (timpris) sätts inte i Car klassen.
     /// Dem hämtas från config via basklassens ApplySpec metod när fordonet skapas i ParkingGarage.
+    /// Detta för att möjliggöra flexibilitet och enkel ändring av fordonsspecifikationer utan att behöva modifiera själva Car klassen.
     /// 
     /// Det sker:
     /// 1. I Menu när användaren väljer att parkera en bil.
@@ -21,7 +22,7 @@ namespace Prague_Parking_V2
     ///     var spec = config.VehicleTypes.FirstOrDefault(v => v.Type == vehicle.Type);
     ///     vehicle.ApplySpec(spec.ChargePerHour, spec.CapacityUnits);
     /// </remarks>
-    
+
     public class Car : Vehicle // Bil klassen ärver från Vehicle
     {
         public Car(string licensePlate) : base(licensePlate, "Car") { } // Konstruktor som anropar basklassens konstruktor
