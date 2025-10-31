@@ -20,7 +20,7 @@ namespace Prague_Parking_V2
     // Jag har pluggat tillsammans med Noah och Hannes vid utförandet av denna inlämning
 
     // HUVUDKLASS FÖR MENYN
-    public static class Menu 
+    public static class Menu
     {
         // FÖR JSON LAGRING
         private static ParkingGarage _garage = null!;
@@ -39,6 +39,7 @@ namespace Prague_Parking_V2
         {
             var optionsMenu = new List<string> // Menyval i en lista för enkel hantering
         {
+            "Show pricelist",
             "Park a vehicle",
             "Remove a vehicle",
             "List parked vehicles",
@@ -60,6 +61,11 @@ namespace Prague_Parking_V2
 
                 switch (selectedOption) // Switch-case för att hantera användarens val
                 {
+                    case "Show pricelist":
+                        {
+                            ShowPriceList();
+                        }
+                        break;
                     case "Park a vehicle":
                         {
                             AnsiConsole.MarkupLine("[green]Parking a vehicle...[/]");
@@ -113,7 +119,7 @@ namespace Prague_Parking_V2
                             AnsiConsole.MarkupLine("[yellow]Garage reset cancelled.[/]");
                         }
                         break;
-                    case "Apply config changes (with no reset of application and keep all vehicles)": 
+                    case "Apply config changes (with no reset of application and keep all vehicles)":
                         {
                             var configPath = Path.Combine(AppContext.BaseDirectory, "../../../configData.json"); // Sökväg till konfigurationsfilen
                             var json = File.ReadAllText(configPath);
@@ -151,7 +157,7 @@ namespace Prague_Parking_V2
                             {
                                 AnsiConsole.MarkupLine($"[red]Failed to apply config: {error}[/]");
                             }
-                            Pause();  
+                            Pause();
                         }
                         break;
                     case "Exit":
@@ -165,6 +171,39 @@ namespace Prague_Parking_V2
                 }
 
             }
+        }
+
+        // METOD FÖR ATT VISA PRISLISTA
+        private static void ShowPriceList()
+        {
+            AnsiConsole.Write(new Rule("[yellow]Price list[/]").LeftJustified());
+
+            // Visa gratis minuter innan avgift
+            AnsiConsole.MarkupLine($"[green]Free minutes before charge: [bold]{_config.FreeMinutesBeforeCharge}[/] min[/]");
+            AnsiConsole.WriteLine();
+
+            // Bygg prislistan som en tabell
+            var table = new Table().Border(TableBorder.Rounded);
+            table.Title = new TableTitle("Vehicle pricing");
+            table.AddColumn(new TableColumn("Vehicle type").LeftAligned());
+            table.AddColumn(new TableColumn("Size units").Centered());
+            table.AddColumn(new TableColumn("Price / hour").RightAligned());
+
+            // Fyll tabellen med data från konfigurationen
+            foreach (var spec in _config.VehicleTypes.OrderBy(v => v.Type))
+            {
+                table.AddRow(
+                    spec.Type,
+                    spec.CapacityUnits.ToString(),
+                    $"{spec.ChargePerHour:0.##} CZK"
+                );
+            }
+
+            AnsiConsole.Write(table);
+
+            // Liten förklaring vartifrån priser och storlekar hämtas
+            AnsiConsole.MarkupLine("[grey]Prices and sizes are read live from configData.json.[/]");
+            Pause();
         }
 
         // METOD UI FÖR ATT PARKERA FORDON
@@ -313,52 +352,103 @@ namespace Prague_Parking_V2
             Pause();
         }
 
+        // HJÄLPMETOD FÖR ATT BESTÄMMA PARKERINGSPLATSENS FÄRG (LEDIG, DELVIS UPPTAGEN, FULL)
+        private static string GetSpotColor(int used, int cap)
+        {
+            if (used <= 0) return "green";      // helt ledig
+            if (used < cap) return "yellow";    // delvis upptagen
+            return "red";                       // full
+        }
+
         // METOD UI FÖR ATT LISTA PARKERADE FORDON
         public static void ListVehiclesUI() // Metod för att lista parkerade fordon
         {
-            AnsiConsole.Write(new FigletText("GARAGE").Centered().Color(Color.Blue)); // Visar en figlet text "GARAGE" centrerad och i grön färg))
+            AnsiConsole.Write(new FigletText("GARAGE").Centered().Color(Color.Blue));
 
-            //var rows = new List<(int Spot, Vehicle vehicle)>(); // Lista för att lagra parkerade fordon och deras platsnummer
-            foreach (var space in _garage.ParkingSpaces) // Loopar igenom alla parkeringsplatser i garaget
+            var spaces = _garage.ParkingSpaces;
+            var total = spaces.Count;
+
+            // Bestäm antal kolumner baserat på konsolens bredd
+            int bufWidth = Console.BufferWidth > 0 ? Console.BufferWidth : 120;
+            int columnsPerRow = Math.Clamp(bufWidth / 12, 6, 14);
+
+            var grid = new Table()
+                .Expand()
+                .Border(TableBorder.None);
+
+            grid.ShowFooters = false;
+            grid.ShowHeaders = false;
+
+            for (int i = 0; i < columnsPerRow; i++)
             {
-                // Lägger till varje parkerat fordon i listan med dess platsnummer och separerar dem
-                var usedSpaceUnits = space.Vehicles.Sum(vehicle => vehicle.Size); // Beräknar det använda utrymmet i parkeringsplatsen
-                var header = $"[yellow]Parking Spot {space.Index}[/] - Used: {usedSpaceUnits}/{space.CapacitySpaces} units"; // Skapar en rubrik för parkeringsplatsen med dess index och använda kapacitet
-                var rule = new Rule(header) { Justification = Justify.Left }; // Skapar en regel med rubriken
-                AnsiConsole.Write(rule); // Visar regeln i konsolen
-
-                // Visuell representation av kapaciteten med gröna och grå block nedan
-                var unitsBar = string.Concat(Enumerable.Range(1, space.CapacitySpaces).Select(i => i <= usedSpaceUnits ? "[green]█[/]" : "[grey]█[/]")); // Skapar en visuell representation av kapaciteten med gröna och grå block
-                AnsiConsole.MarkupLine(unitsBar); // Visar kapacitetsbaren i konsolen
-
-                if (space.Vehicles.Count == 0) // Om inga fordon är parkerade på platsen
-                {
-                    AnsiConsole.MarkupLine("[grey]-- No vehicles parked in this spot --[/]");
-                    continue; // Hoppar till nästa iteration av loopen
-                }
-
-                // Visar tabellen med parkerade fordon
-                var table = new Table().Border(TableBorder.Rounded); // Skapar en tabell för att visa fordonen
-                table.AddColumn("Space units used");
-                table.AddColumn("Registration number");
-                table.AddColumn("Type");
-                table.AddColumn("Parked at");
-
-                // Lägger till rader i tabellen för varje parkerat fordon
-                foreach (var vehicle in space.Vehicles)
-                {
-                    table.AddRow(
-                        vehicle.Size.ToString(), // Använda utrymmes enheter
-                        vehicle.LicensePlate, // Registreringsnummer
-                        vehicle.GetType().Name, // Fordonstyp
-                        vehicle.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm")); // Tidpunkt när fordonet parkerades
-                }
-                AnsiConsole.Write(table); // Visar tabellen i konsolen
+                grid.AddColumn(new TableColumn("").Centered());
             }
-            AnsiConsole.Write(new Rule()); // Visar en avslutande regel i konsolen
+
+            // Bygg rader med parkeringsplatser
+            var rowCells = new List<IRenderable>(columnsPerRow);
+            int colIndex = 0;
+
+            foreach (var space in spaces) // Loopar igenom varje parkeringsplats
+            {
+                int used = space.Vehicles.Sum(v => v.Size);
+                int cap = space.CapacitySpaces;
+
+                string color = GetSpotColor(used, cap);
+                // Tvåradig kompakt cell: färgad plats-siffra + used/cap
+                string cellText =
+                    $"[{color}][bold]{space.Index}[/][/]\n" +
+                    $"[grey]{used}/{cap}[/]";
+
+                rowCells.Add(new Markup(cellText));
+
+                colIndex++; // Öka kolumnindex
+                if (colIndex == columnsPerRow)
+                {
+                    grid.AddRow(rowCells.ToArray());
+                    rowCells.Clear();
+                    colIndex = 0;
+                }
+            }
+
+
+            if (rowCells.Count > 0)
+            {
+                while (rowCells.Count < columnsPerRow)
+                    rowCells.Add(new Markup("")); // tomma celler
+                grid.AddRow(rowCells.ToArray());
+            }
+
+            // Legend som förklarar färgerna
+            var legend = new Markup(
+                "[bold]Occupancy:[/] " +
+                "[green]■[/] Free  " +
+                "[yellow]■[/] Partial  " +
+                "[red]■[/] Full\n"
+            );
+
+            // Rendera allt tillsammans i konsolen
+            AnsiConsole.Write(legend);
+            AnsiConsole.Write(new Rule());
+            AnsiConsole.Write(grid);
+            AnsiConsole.Write(new Rule());
+
+            // En snabb summering av antal lediga, delvis upptagna och fulla platser
+            int freeCount = spaces.Count(s => s.Vehicles.Sum(v => v.Size) == 0);
+            int partialCount = spaces.Count(s =>
+            {
+                var u = s.Vehicles.Sum(v => v.Size);
+                return u > 0 && u < s.CapacitySpaces;
+            });
+            int fullCount = spaces.Count - freeCount - partialCount;
+
+            var summary = new Table().Border(TableBorder.Rounded); // Summeringstabell
+            summary.AddColumn("Free");
+            summary.AddColumn("Partial");
+            summary.AddColumn("Full");
+            summary.AddRow($"{freeCount}", $"{partialCount}", $"{fullCount}");
+            AnsiConsole.Write(summary);
 
             Pause();
-
         }
 
         // METOD UI FÖR ATT HITTA FORDON

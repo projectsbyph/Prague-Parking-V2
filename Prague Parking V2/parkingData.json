@@ -8,33 +8,15 @@
     },
     {
       "Index": 2,
-      "Vehicle": [
-        {
-          "Type": "Car",
-          "LicensePlate": "SDF123",
-          "ParkedAtUtc": "2025-10-29T12:33:59.0626614Z"
-        }
-      ]
+      "Vehicle": []
     },
     {
       "Index": 3,
-      "Vehicle": [
-        {
-          "Type": "Car",
-          "LicensePlate": "ERT345",
-          "ParkedAtUtc": "2025-10-30T16:42:30.9731211Z"
-        }
-      ]
+      "Vehicle": []
     },
     {
       "Index": 4,
-      "Vehicle": [
-        {
-          "Type": "Car",
-          "LicensePlate": "GHI357",
-          "ParkedAtUtc": "2025-10-31T07:46:07.1382854Z"
-        }
-      ]
+      "Vehicle": []
     },
     {
       "Index": 5,
