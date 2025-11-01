@@ -448,8 +448,77 @@ namespace Prague_Parking_V2
             summary.AddRow($"{freeCount}", $"{partialCount}", $"{fullCount}");
             AnsiConsole.Write(summary);
 
+            // Kolla registreringsnummer på specifik plats 
+            var next = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("More options:")
+                    .PageSize(3)
+                    .AddChoices("Show registration numbers", "Back")
+            );
+
+            if (next == "Show registration numbers")
+            {
+                ShowRegistrationNumbersUI(); // Anropar hjälpmetoden för att visa registreringsnummer på en parkeringsplats
+                return; 
+            }
+
             Pause();
         }
+
+        // HJÄLPMETOD UI FÖR ATT VISA REGISTRERINGSNUMMER PÅ EN PARKERINGSPLATS
+        private static void ShowRegistrationNumbersUI()
+        {
+            // Kolla hur många platser som finns
+            int maxIndex = _garage.ParkingSpaces.Count;
+            if (maxIndex == 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]There are no parking spaces.[/]");
+                Pause();
+                return;
+            }
+
+            // Fråga användaren vilken plats
+            var spotIndex = AnsiConsole.Prompt(
+                new TextPrompt<int>($"Which spot? (1–{maxIndex})") // Fråga användaren vilken plats
+                    .Validate(i =>
+                        i >= 1 && i <= maxIndex
+                            ? ConsoleValidationResult.Success()
+                            : ConsoleValidationResult.Error($"[red]Please enter a number between 1 and {maxIndex}[/]"))
+            );
+
+            // Hämta platsen
+            var space = _garage.ParkingSpaces.First(s => s.Index == spotIndex);
+
+            // Om tomt – säg det och avsluta
+            if (space.Vehicles.Count == 0)
+            {
+                AnsiConsole.MarkupLine($"[yellow]Parking spot {space.Index} is empty.[/]");
+                Pause();
+                return;
+            }
+
+            // Visa bilarna på platsen
+            var table = new Table().Border(TableBorder.Rounded).BorderColor(Color.Aqua); // Tabell för att visa fordon på platsen
+            table.Title = new TableTitle($"Vehicles in spot {space.Index}");
+            table.AddColumn("Registration");
+            table.AddColumn("Type");
+            table.AddColumn("Size");
+            table.AddColumn("Parked at");
+
+            foreach (var v in space.Vehicles) // Loopar igenom varje fordon på platsen
+            {
+                table.AddRow(
+                    v.LicensePlate,
+                    v.GetType().Name,
+                    v.Size.ToString(),
+                    v.TimeParked.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                );
+            }
+
+            AnsiConsole.Write(table);
+            Pause();
+        }
+
 
         // METOD UI FÖR ATT HITTA FORDON
         public static void FindVehicleUI()
