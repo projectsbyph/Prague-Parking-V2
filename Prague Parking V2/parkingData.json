@@ -4,7 +4,13 @@
   "Spaces": [
     {
       "Index": 1,
-      "Vehicle": []
+      "Vehicle": [
+        {
+          "Type": "Car",
+          "LicensePlate": "TEST123",
+          "ParkedAtUtc": "2025-11-01T10:26:11.1706576Z"
+        }
+      ]
     },
     {
       "Index": 2,
